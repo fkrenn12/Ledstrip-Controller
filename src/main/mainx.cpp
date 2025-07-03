@@ -38,7 +38,7 @@ void_func_void callback_idle = idle;
 void process_received_message(char* message) {
   Serial.write(message);
   Serial.write('\n');
-  StaticJsonDocument<UART_BUFFER_SIZE> doc;
+  JsonDocument doc;
   // Parse den JSON-String
   DeserializationError error = deserializeJson(doc, message);
   if (error) {

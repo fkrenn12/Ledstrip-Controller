@@ -92,7 +92,7 @@ public:
 
     // Verarbeitet Eingaben
     void process_input(const char* input_data) {
-        StaticJsonDocument<256> doc;
+        JsonDocument doc;
         DeserializationError error = deserializeJson(doc, input_data);
 
         if (error) {
@@ -101,10 +101,17 @@ public:
             return;
         }
 
+        if (doc["pixels"].is<int>())
+        {
+            set_number_of_pixels(doc["pixels"]);
+        }
+        /*
         if (doc.containsKey("pixels")) {
             set_number_of_pixels(doc["pixels"]);
         }
-        if (doc.containsKey("pattern")) {
+        */
+        //if (doc.containsKey("pattern")) {
+        if (doc["pattern"].is<JsonArray>()) {
             if (doc["autoclear"] == 1) {
                 pixels.fill(pixels.Color(0, 0, 0));
             }
@@ -116,10 +123,10 @@ public:
             }
             set_pattern(pattern_array, pattern_length, doc["start"] | 0, doc["repeat"] | 0);
         }
-        if (doc.containsKey("interval")) {
+        if (doc["interval"].is<int>()) {
             set_interval(doc["interval"]);
         }
-        if (doc.containsKey("mode")) {
+        if (doc["mode"].is<String>()) {
             set_mode(doc["mode"]);
         }
     }
@@ -137,19 +144,19 @@ public:
     }
 };
 
-/*
+
 // Globale Zuweisung der Streifen
-#define NUM_STRIPS 3
-int NEO_PIXEL_PINS[NUM_STRIPS] = {6, 7, 8};
+#define NUM_STRIPS 8
+int NEO_PIXEL_PINS[NUM_STRIPS] = {2, 3, 4, 5, 6, 7, 8, 9};
 Neostrip* strip_mapping[NUM_STRIPS];
 
-void setup() {
-    Serial.begin(9600);
+void create_strips() {
     for (int i = 0; i < NUM_STRIPS; i++) {
         strip_mapping[i] = new Neostrip(NEO_PIXEL_PINS[i]);
     }
 }
 
+/*
 void loop() {
     for (int i = 0; i < NUM_STRIPS; i++) {
         strip_mapping[i]->processing();
