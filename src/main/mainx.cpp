@@ -42,6 +42,7 @@ int index_of_pin(int pin) {
 
 #define NUM_STRIPS 6
 void idle() {
+    return;
     // Iteriere durch das Array oder die Mapping der LED-Streifen
     for (int i = 0; i < NUM_STRIPS; i++) {
         Neostrip* led_strip = strip_mapping[i];
@@ -53,7 +54,6 @@ void idle() {
         }
     }
     show_all_strips();
-    Serial.print("*");
 }
 
 
