@@ -1,28 +1,27 @@
 #ifndef STRIP_H
 #define STRIP_H
 
-#include <Adafruit_NeoPixel.h>
 #include <NeoPixelBus.h>
 #include <ArduinoJson.h>
 
-#define DEFAULT_INTERVAL_MS 1000
-#define DEFAULT_NUMBER_OF_PIXELS 10
+#define DEFAULT_INTERVAL_MS 10
+#define DEFAULT_NUMBER_OF_PIXELS 100
 
 class Neostrip {
 private:
     const char* MODES[4] = {"off", "on", "left", "right"};
     int neo_pin;
     int number_of_pixels;
-    int interval;
-    unsigned long last_tick_ms;
+    
     const char* mode;
-    Adafruit_NeoPixel pixels;
+    NeoPixelBus<NeoGrbFeature, NeoEsp32LcdX8Ws2812xMethod> strip; // note: modern WS2812 with letter like WS2812b
     //NeoPixelBus<NeoGrbFeature, NeoWs2812xMethod> strip(PixelCount, PixelPin);
 
 public:
     // Konstruktor
     Neostrip(int neo_pin, int interval = DEFAULT_INTERVAL_MS, int number_of_pixels = DEFAULT_NUMBER_OF_PIXELS);
-
+    int interval;
+    unsigned long last_tick_ms;
     // Methoden
     void set_mode(const char* new_mode);
     void set_number_of_pixels(int new_number_of_pixels);
@@ -32,6 +31,7 @@ public:
     void rotate_left();
     void process_input(const char* input_data);
     void processing();
+    void show();
 };
 
 #endif // STRIP_H

@@ -1,18 +1,18 @@
 #include "strip.h"
 #include "rgb.h"
 #include <ArduinoJson.h>
-// #include <Adafruit_NeoPixel.h>
 #include <NeoPixelBus.h>
 
 
 // Konstruktor
 Neostrip::Neostrip(int neo_pin, int interval, int number_of_pixels)
-    : neo_pin(neo_pin), number_of_pixels(number_of_pixels), interval(interval), mode("off"), last_tick_ms(0),
-      pixels(number_of_pixels, neo_pin, NEO_GRB + NEO_KHZ800) 
-{
-    pixels.begin();
-    pixels.fill(pixels.Color(10, 0, 0));
-    pixels.show();
+    : neo_pin(neo_pin), number_of_pixels(number_of_pixels), interval(interval), mode("on"), last_tick_ms(0),
+      strip(number_of_pixels, neo_pin){
+    // pixels.begin();
+    // pixels.fill(pixels.Color(10, 0, 0));
+    // pixels.show();
+    strip.Begin();
+    strip.ClearTo(RgbColor(0, 0, 0));
 }
 
 // Modus setzen
@@ -25,15 +25,21 @@ void Neostrip::set_mode(const char* new_mode) {
     }
 }
 
+void Neostrip::show() {
+    strip.Show();
+}
+
 // Pixelanzahl setzen
 void Neostrip::set_number_of_pixels(int new_number_of_pixels) {
     if (new_number_of_pixels != number_of_pixels) {
+        /*
         pixels.fill(pixels.Color(0, 0, 0));
         pixels.show();
         number_of_pixels = new_number_of_pixels;
         pixels.updateLength(number_of_pixels);
         pixels.fill(pixels.Color(0, 0, 0));
         pixels.show();
+        */
     }
 }
 
@@ -49,40 +55,38 @@ void Neostrip::set_pattern(uint8_t* pattern, int pattern_length, int start, int 
     Serial.println("Set_pattern");
     Serial.println(start);
     Serial.println(end);
-
-
+    
     for (int i = start; i < end; i++) {
         uint8_t r, g, b;
         Serial.println(i);
-        byteToRgb2222(pattern[i % pattern_length], &r, &g, &b);  // Annahme: Hilfsfunktion existiert
-        pixels.setPixelColor(i, pixels.Color(r, g, b));
+        byteToRgb2222(pattern[i % pattern_length], &r, &g, &b); 
+        strip.SetPixelColor(i, RgbColor(r, g, b));
     }
-
-    //if (strcmp(mode, MODES[0]) == 0) {
-    //    set_mode(MODES[1]);
-    //}
-    pixels.show();
     last_tick_ms = millis();
 }
 
 // Rotation nach rechts
 void Neostrip::rotate_right() {
-    uint32_t last_pixel = pixels.getPixelColor(number_of_pixels - 1);
+    /*
+    uint32_t last_pixel = strip.GetPixelColor(number_of_pixels - 1);
     for (int i = number_of_pixels - 1; i > 0; i--) {
         pixels.setPixelColor(i, pixels.getPixelColor(i - 1));
     }
     pixels.setPixelColor(0, last_pixel);
     pixels.show();
+    */
 }
 
 // Rotation nach links
 void Neostrip::rotate_left() {
+    /*
     uint32_t first_pixel = pixels.getPixelColor(0);
     for (int i = 0; i < number_of_pixels - 1; i++) {
         pixels.setPixelColor(i, pixels.getPixelColor(i + 1));
     }
     pixels.setPixelColor(number_of_pixels - 1, first_pixel);
     pixels.show();
+    */
 }
 
 // Verarbeitung von JSON-Daten
@@ -105,7 +109,7 @@ void Neostrip::process_input(const char* input_data) {
         Serial.println(F("pattern detected"));
         if (doc["autoclear"] == 1) {
             Serial.println(F("autoclear detected"));
-            pixels.fill(pixels.Color(0, 0, 0));
+            strip.ClearTo(RgbColor(0, 0, 0));
         }
         JsonArray pattern = doc["pattern"];
         int pattern_length = pattern.size();
@@ -116,22 +120,20 @@ void Neostrip::process_input(const char* input_data) {
         }
         set_pattern(pattern_array, pattern_length, doc["start"] | 0, doc["repeat"] | 0);
     }
-    if (doc["interval"].is<int>()) {
-        set_interval(doc["interval"]);
-    }
-    if (doc["mode"].is<const char*>()) {
-        set_mode(doc["mode"]);
-    }
+    //if (doc["interval"].is<int>()) {
+    //    set_interval(doc["interval"]);
+    //}
+    //if (doc["mode"].is<const char*>()) {
+    //    set_mode(doc["mode"]);
+    //}
 }
 
-// Verarbeitet den aktuellen Modus
 void Neostrip::processing() {
     if (strcmp(mode, "off") == 0) {
-        pixels.fill(pixels.Color(0, 0, 0));
+        strip.ClearTo(RgbColor(0, 0, 0));
     } else if (strcmp(mode, "right") == 0) {
         rotate_right();
     } else if (strcmp(mode, "left") == 0) {
         rotate_left();
     }
-    pixels.show();
 }
