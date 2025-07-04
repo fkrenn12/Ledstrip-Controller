@@ -1,166 +1,137 @@
-  // rgb.setPixelColor(1, rgb.Color(COLOR_ACTIVE));
-  // rgb.show();
-#include <Adafruit_NeoPixel.h>
-#include <ArduinoJson.h>
+#include "strip.h"
 #include "rgb.h"
-#define DEFAULT_INTERVAL_MS 1000
-#define DEFAULT_NUMBER_OF_PIXELS 10
+#include <ArduinoJson.h>
+// #include <Adafruit_NeoPixel.h>
+#include <NeoPixelBus.h>
 
-class Neostrip {
-private:
-    const char* MODES[4] = {"off", "on", "left", "right"};
-    int neo_pin;
-    int number_of_pixels;
-    int interval;
-    unsigned long last_tick_ms;
-    const char* mode;
-    Adafruit_NeoPixel pixels;
 
-public:
-    // Konstruktor
-    Neostrip(int neo_pin, int interval = DEFAULT_INTERVAL_MS, int number_of_pixels = DEFAULT_NUMBER_OF_PIXELS)
-      : neo_pin(neo_pin), number_of_pixels(number_of_pixels), interval(interval), mode("off"), last_tick_ms(0),
-        pixels(number_of_pixels, neo_pin, NEO_GRB + NEO_KHZ800) 
-    {
-        pixels.begin();
+// Konstruktor
+Neostrip::Neostrip(int neo_pin, int interval, int number_of_pixels)
+    : neo_pin(neo_pin), number_of_pixels(number_of_pixels), interval(interval), mode("off"), last_tick_ms(0),
+      pixels(number_of_pixels, neo_pin, NEO_GRB + NEO_KHZ800) 
+{
+    pixels.begin();
+    pixels.fill(pixels.Color(10, 0, 0));
+    pixels.show();
+}
+
+// Modus setzen
+void Neostrip::set_mode(const char* new_mode) {
+    for (const char* valid_mode : MODES) {
+        if (strcmp(new_mode, valid_mode) == 0) {
+            mode = new_mode;
+            return;
+        }
+    }
+}
+
+// Pixelanzahl setzen
+void Neostrip::set_number_of_pixels(int new_number_of_pixels) {
+    if (new_number_of_pixels != number_of_pixels) {
+        pixels.fill(pixels.Color(0, 0, 0));
+        pixels.show();
+        number_of_pixels = new_number_of_pixels;
+        pixels.updateLength(number_of_pixels);
         pixels.fill(pixels.Color(0, 0, 0));
         pixels.show();
     }
+}
 
-    // Modus setzen
-    void set_mode(const char* new_mode) {
-        for (const char* valid_mode : MODES) {
-            if (strcmp(new_mode, valid_mode) == 0) {
-                mode = new_mode;
-                return;
-            }
-        }
+// Intervall setzen
+void Neostrip::set_interval(int new_interval) {
+    interval = new_interval;
+}
+
+// Muster setzen
+void Neostrip::set_pattern(uint8_t* pattern, int pattern_length, int start, int repeat) {
+    start = max(1, start) - 1;
+    int end = (repeat == 0) ? number_of_pixels : min(repeat * pattern_length + start, number_of_pixels);
+    Serial.println("Set_pattern");
+    Serial.println(start);
+    Serial.println(end);
+
+
+    for (int i = start; i < end; i++) {
+        uint8_t r, g, b;
+        Serial.println(i);
+        byteToRgb2222(pattern[i % pattern_length], &r, &g, &b);  // Annahme: Hilfsfunktion existiert
+        pixels.setPixelColor(i, pixels.Color(r, g, b));
     }
 
-    // Pixelanzahl setzen
-    void set_number_of_pixels(int new_number_of_pixels) {
-        if (new_number_of_pixels != number_of_pixels) {
+    //if (strcmp(mode, MODES[0]) == 0) {
+    //    set_mode(MODES[1]);
+    //}
+    pixels.show();
+    last_tick_ms = millis();
+}
+
+// Rotation nach rechts
+void Neostrip::rotate_right() {
+    uint32_t last_pixel = pixels.getPixelColor(number_of_pixels - 1);
+    for (int i = number_of_pixels - 1; i > 0; i--) {
+        pixels.setPixelColor(i, pixels.getPixelColor(i - 1));
+    }
+    pixels.setPixelColor(0, last_pixel);
+    pixels.show();
+}
+
+// Rotation nach links
+void Neostrip::rotate_left() {
+    uint32_t first_pixel = pixels.getPixelColor(0);
+    for (int i = 0; i < number_of_pixels - 1; i++) {
+        pixels.setPixelColor(i, pixels.getPixelColor(i + 1));
+    }
+    pixels.setPixelColor(number_of_pixels - 1, first_pixel);
+    pixels.show();
+}
+
+// Verarbeitung von JSON-Daten
+void Neostrip::process_input(const char* input_data) {
+    JsonDocument doc;
+    DeserializationError error = deserializeJson(doc, input_data);
+
+    if (error) {
+        Serial.print(F("Error parsing JSON: "));
+        Serial.println(error.c_str());
+        return;
+    }
+    Serial.println(F("Parsing JSON OK"));
+
+    if (doc["pixels"].is<int>()) {
+        Serial.println(F("set number of pixels"));
+        set_number_of_pixels(doc["pixels"]);
+    }
+    if (doc["pattern"].is<JsonArray>()) {
+        Serial.println(F("pattern detected"));
+        if (doc["autoclear"] == 1) {
+            Serial.println(F("autoclear detected"));
             pixels.fill(pixels.Color(0, 0, 0));
-            pixels.show();
-            number_of_pixels = new_number_of_pixels;
-            pixels.updateLength(number_of_pixels);
         }
+        JsonArray pattern = doc["pattern"];
+        int pattern_length = pattern.size();
+        uint8_t pattern_array[pattern_length];
+        for (int i = 0; i < pattern_length; i++) {
+            Serial.println((int)pattern[i]);
+            pattern_array[i] = pattern[i];
+        }
+        set_pattern(pattern_array, pattern_length, doc["start"] | 0, doc["repeat"] | 0);
     }
-
-    // Intervall setzen
-    void set_interval(int new_interval) {
-        interval = new_interval;
+    if (doc["interval"].is<int>()) {
+        set_interval(doc["interval"]);
     }
-
-    // Muster setzen
-    void set_pattern(uint8_t* pattern, int pattern_length, int start = 0, int repeat = 0) {
-        start = max(1, start) - 1;
-        int end = (repeat == 0) ? number_of_pixels : min(repeat * pattern_length + start, number_of_pixels);
-
-        for (int i = start; i < end; i++) {
-            uint8_t r, g, b;
-            byteToRgb2222(pattern[i % pattern_length], &r, &g, &b);  // Annahme: Hilfsfunktion existiert
-            pixels.setPixelColor(i, pixels.Color(r, g, b));
-        }
-
-        if (strcmp(mode, MODES[0]) == 0) {
-            set_mode(MODES[1]);
-        }
-        pixels.show();
-        last_tick_ms = millis();
-    }
-
-    // Rotation nach rechts
-    void rotate_right() {
-        uint32_t last_pixel = pixels.getPixelColor(number_of_pixels - 1);
-        for (int i = number_of_pixels - 1; i > 0; i--) {
-            pixels.setPixelColor(i, pixels.getPixelColor(i - 1));
-        }
-        pixels.setPixelColor(0, last_pixel);
-        pixels.show();
-    }
-
-    // Rotation nach links
-    void rotate_left() {
-        uint32_t first_pixel = pixels.getPixelColor(0);
-        for (int i = 0; i < number_of_pixels - 1; i++) {
-            pixels.setPixelColor(i, pixels.getPixelColor(i + 1));
-        }
-        pixels.setPixelColor(number_of_pixels - 1, first_pixel);
-        pixels.show();
-    }
-
-    // Verarbeitet Eingaben
-    void process_input(const char* input_data) {
-        JsonDocument doc;
-        DeserializationError error = deserializeJson(doc, input_data);
-
-        if (error) {
-            Serial.print(F("Error parsing JSON: "));
-            Serial.println(error.c_str());
-            return;
-        }
-
-        if (doc["pixels"].is<int>())
-        {
-            set_number_of_pixels(doc["pixels"]);
-        }
-        /*
-        if (doc.containsKey("pixels")) {
-            set_number_of_pixels(doc["pixels"]);
-        }
-        */
-        //if (doc.containsKey("pattern")) {
-        if (doc["pattern"].is<JsonArray>()) {
-            if (doc["autoclear"] == 1) {
-                pixels.fill(pixels.Color(0, 0, 0));
-            }
-            JsonArray pattern = doc["pattern"];
-            int pattern_length = pattern.size();
-            uint8_t pattern_array[pattern_length];
-            for (int i = 0; i < pattern_length; i++) {
-                pattern_array[i] = pattern[i];
-            }
-            set_pattern(pattern_array, pattern_length, doc["start"] | 0, doc["repeat"] | 0);
-        }
-        if (doc["interval"].is<int>()) {
-            set_interval(doc["interval"]);
-        }
-        if (doc["mode"].is<String>()) {
-            set_mode(doc["mode"]);
-        }
-    }
-
-    // Verarbeitet den aktuellen Modus
-    void processing() {
-        if (strcmp(mode, "off") == 0) {
-            pixels.fill(pixels.Color(0, 0, 0));
-        } else if (strcmp(mode, "right") == 0) {
-            rotate_right();
-        } else if (strcmp(mode, "left") == 0) {
-            rotate_left();
-        }
-        pixels.show();
-    }
-};
-
-
-// Globale Zuweisung der Streifen
-#define NUM_STRIPS 8
-int NEO_PIXEL_PINS[NUM_STRIPS] = {2, 3, 4, 5, 6, 7, 8, 9};
-Neostrip* strip_mapping[NUM_STRIPS];
-
-void create_strips() {
-    for (int i = 0; i < NUM_STRIPS; i++) {
-        strip_mapping[i] = new Neostrip(NEO_PIXEL_PINS[i]);
+    if (doc["mode"].is<const char*>()) {
+        set_mode(doc["mode"]);
     }
 }
 
-/*
-void loop() {
-    for (int i = 0; i < NUM_STRIPS; i++) {
-        strip_mapping[i]->processing();
+// Verarbeitet den aktuellen Modus
+void Neostrip::processing() {
+    if (strcmp(mode, "off") == 0) {
+        pixels.fill(pixels.Color(0, 0, 0));
+    } else if (strcmp(mode, "right") == 0) {
+        rotate_right();
+    } else if (strcmp(mode, "left") == 0) {
+        rotate_left();
     }
-    delay(100);
+    pixels.show();
 }
-*/
