@@ -42,7 +42,7 @@ int index_of_pin(int pin) {
 
 #define NUM_STRIPS 6
 void idle() {
-    return;
+    return;  //################################################### wegen flicker
     // Iteriere durch das Array oder die Mapping der LED-Streifen
     for (int i = 0; i < NUM_STRIPS; i++) {
         Neostrip* led_strip = strip_mapping[i];
@@ -53,7 +53,7 @@ void idle() {
             led_strip->processing();           // Verarbeite den aktuellen Modus
         }
     }
-    show_all_strips();
+    show_all_strips();   // ################## das ist schlecht, weil immer alles angezeigt wird, aber es muss nicht
 }
 
 
