@@ -42,7 +42,8 @@ int index_of_pin(int pin) {
 
 #define NUM_STRIPS 6
 void idle() {
-    return;  //################################################### wegen flicker
+    // return;  //################################################### wegen flicker
+    bool need_show_stripps = false;
     // Iteriere durch das Array oder die Mapping der LED-Streifen
     for (int i = 0; i < NUM_STRIPS; i++) {
         Neostrip* led_strip = strip_mapping[i];
@@ -51,9 +52,10 @@ void idle() {
         if (millis() - led_strip->last_tick_ms > led_strip->interval) {
             led_strip->last_tick_ms = millis(); // Aktualisiere den letzten Tick
             led_strip->processing();           // Verarbeite den aktuellen Modus
+            need_show_stripps = true;
         }
     }
-    show_all_strips();   // ################## das ist schlecht, weil immer alles angezeigt wird, aber es muss nicht
+    //if (need_show_stripps) show_all_strips();   // ################## das ist schlecht, weil immer alles angezeigt wird, aber es muss nicht
 }
 
 
