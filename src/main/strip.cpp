@@ -19,6 +19,7 @@ void Neostrip::set_mode(const char* new_mode) {
         Serial.println(new_mode);
         if (strcmp(new_mode, valid_mode) == 0) {
             strcpy(mode, new_mode);
+            // mode = new_mode;
             Serial.println("set-mode done");
             Serial.print("new mode is ");
             Serial.println(mode);
