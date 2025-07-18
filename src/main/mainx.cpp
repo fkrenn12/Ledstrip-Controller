@@ -7,24 +7,38 @@
 #include <string>
 #include "strip.h"
 
+// {"pin": 2, "autoclear": 1, "pattern": [240,204,195] ,"repeat": 1, "interval":100, "mode":"right","first":1, "last":144, "count":144}
+
 void show_all_strips();
 void create_strips();
 // Globale Zuweisung der Streifen
 #define NUM_STRIPS 8
-// int NEO_PIXEL_PINS[NUM_STRIPS] = {2, 3, 4, 5, 6};
-int NEO_PIXEL_PINS[NUM_STRIPS] = {2,3,4,5,6,7,8,9};
+#define MAX_PIXEL_PER_STRIP 1000
+int NEO_PIXEL_PINS[NUM_STRIPS] = {2,3,4,5,6,7,44,9};
 Neostrip* strip_mapping[NUM_STRIPS];
 
 void create_strips() {
     Serial.println("Starting to create and initial strips");
+    Serial.println("Create strips with max number of pixels");
     for (int i = 0; i < NUM_STRIPS; i++) {
-        Serial.println(NEO_PIXEL_PINS[i]);
-        strip_mapping[i] = new Neostrip(NEO_PIXEL_PINS[i]);
+        strip_mapping[i] = new Neostrip(NEO_PIXEL_PINS[i],DEFAULT_INTERVAL_MS, MAX_PIXEL_PER_STRIP);
     }
+    return;
+    // deleting and recreating does not work !!
+    Serial.println("Destroying strips");
+    for (int i = 0; i < NUM_STRIPS; i++) {
+        Neostrip* strip =  strip_mapping[i];
+        delete strip;
+    }
+    Serial.println("Recreate strips with default number of pixels");
+    for (int i = 0; i < NUM_STRIPS; i++) {
+        strip_mapping[i] = new Neostrip(NEO_PIXEL_PINS[i], DEFAULT_INTERVAL_MS,DEFAULT_NUMBER_OF_PIXELS);
+    }
+    Serial.println("Finished creating and initial strips");
 }
 
 void show_all_strips() {
-    Serial.println("update all strips");
+    // Serial.println("update all strips");
     for (int i = 0; i < NUM_STRIPS; i++) {
         Neostrip* strip = strip_mapping[i];
         strip->show();
@@ -40,22 +54,34 @@ int index_of_pin(int pin) {
 
 // Globale Variablen
 
-#define NUM_STRIPS 6
 void idle() {
-    // return;  //################################################### wegen flicker
-    bool need_show_stripps = false;
-    // Iteriere durch das Array oder die Mapping der LED-Streifen
+    bool need_show_strip = false;
+    u64_t currentMillis = millis();
+    static u64_t last_tick_ms = 0;
+
+    int lowest_led_strip_interval = 1000000;
     for (int i = 0; i < NUM_STRIPS; i++) {
         Neostrip* led_strip = strip_mapping[i];
-        
-        // Überprüfe, ob die Zeitdifferenz größer als das Intervall ist
-        if (millis() - led_strip->last_tick_ms > led_strip->interval) {
-            led_strip->last_tick_ms = millis(); // Aktualisiere den letzten Tick
-            led_strip->processing();           // Verarbeite den aktuellen Modus
-            need_show_stripps = true;
+        if (led_strip->interval < lowest_led_strip_interval) {
+            lowest_led_strip_interval = led_strip->interval;
         }
+        // Überprüfe, ob die Zeitdifferenz größer als das Intervall ist
+        if (currentMillis- led_strip->last_tick_ms > led_strip->interval) {
+            led_strip->last_tick_ms = currentMillis; // Aktualisiere den letzten Tick
+            led_strip->processing();           // Verarbeite den aktuellen Modus
+        }
+        need_show_strip = need_show_strip || led_strip->need_show;
+        led_strip->need_show = false;
     }
-    //if (need_show_stripps) show_all_strips();   // ################## das ist schlecht, weil immer alles angezeigt wird, aber es muss nicht
+
+    // if (need_show_strip) //only on pattern update
+    if ((currentMillis - last_tick_ms > lowest_led_strip_interval)   || need_show_strip)
+    {
+        last_tick_ms = currentMillis;
+        digitalWrite(INDICATOR_LED_PIN, HIGH);
+        show_all_strips(); 
+        digitalWrite(INDICATOR_LED_PIN, LOW);
+    }
 }
 
 
@@ -81,26 +107,39 @@ void process_received_message(char* message) {
   int index = index_of_pin(pin);
   Serial.print("Index: ");
   Serial.println(index);
-  if (index >= 0) {
-    Serial.println("Pin is valid");  
-    strip_mapping[index]->process_input(message);
+  if (index < 0) return;
+  Serial.println("Pin is valid"); 
+
+  Neostrip* strip = strip_mapping[index];
+  if (doc["pixels"].is<int>()) {
+        int pixels = doc["pixels"];
+        if (pixels != strip->strip.PixelCount()) {
+        Serial.println("set number of pixels");
+        delete strip;
+        int interval = DEFAULT_INTERVAL_MS;
+        if (doc["interval"].is<int>()) interval = doc["interval"]; 
+        strip_mapping[index] = new Neostrip(NEO_PIXEL_PINS[index],interval,pixels);
+    }
   }
-  show_all_strips();
+  strip_mapping[index]->process_input(message);
 }
 
 void setup() {
+  // malloc(strip_mapping, NUM_STRIPS * sizeof(Neostrip*));
   Serial.begin(9600);  // monitor
   Serial1.begin(UART_BAUDRATE, SERIAL_8N1, UART_RX_PIN);
+  Serial.println(heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
   pinMode(INDICATOR_LED_PIN, OUTPUT);
   digitalWrite(INDICATOR_LED_PIN, LOW); 
   create_strips();
+  Serial.println(heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
 }
 
 void loop() {
   char* line = read_uart_line_blocking(callback_idle,'\n');
-  digitalWrite(INDICATOR_LED_PIN, HIGH);
+  // digitalWrite(INDICATOR_LED_PIN, HIGH);
   process_received_message(line);
-  digitalWrite(INDICATOR_LED_PIN, LOW);
+  // digitalWrite(INDICATOR_LED_PIN, LOW);
 }
 
 // https://github.com/Makuna/NeoPixelBus/blob/master/examples/ESP32/NeoPixel_ESP32_LcdParallel/NeoPixel_ESP32_LcdParallel.ino

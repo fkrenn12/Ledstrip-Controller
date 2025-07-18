@@ -6,11 +6,8 @@
 
 // Konstruktor
 Neostrip::Neostrip(int neo_pin, int interval, int number_of_pixels)
-    : neo_pin(neo_pin), number_of_pixels(number_of_pixels), interval(interval), mode("on"), last_tick_ms(0),
+    : neo_pin(neo_pin), number_of_pixels(number_of_pixels), interval(interval), mode("on"), last_tick_ms(0), need_show(false),
       strip(number_of_pixels, neo_pin){
-    // pixels.begin();
-    // pixels.fill(pixels.Color(10, 0, 0));
-    // pixels.show();
     strip.Begin();
     strip.ClearTo(RgbColor(0, 0, 0));
 }
@@ -18,34 +15,36 @@ Neostrip::Neostrip(int neo_pin, int interval, int number_of_pixels)
 // Modus setzen
 void Neostrip::set_mode(const char* new_mode) {
     for (const char* valid_mode : MODES) {
+        Serial.print(valid_mode);
+        Serial.println(new_mode);
         if (strcmp(new_mode, valid_mode) == 0) {
-            mode = new_mode;
+            strcpy(mode, new_mode);
+            Serial.println("set-mode done");
+            Serial.print("new mode is ");
+            Serial.println(mode);
             return;
         }
     }
+    Serial.println("set-mode cancelled");
+    Serial.print("mode leaved as ");
+    Serial.println(mode);
 }
 
 void Neostrip::show() {
+    need_show=false;
     strip.Show();
 }
 
 // Pixelanzahl setzen
 void Neostrip::set_number_of_pixels(int new_number_of_pixels) {
-    if (new_number_of_pixels != number_of_pixels) {
-        /*
-        pixels.fill(pixels.Color(0, 0, 0));
-        pixels.show();
         number_of_pixels = new_number_of_pixels;
-        pixels.updateLength(number_of_pixels);
-        pixels.fill(pixels.Color(0, 0, 0));
-        pixels.show();
-        */
-    }
+
 }
 
 // Intervall setzen
 void Neostrip::set_interval(int new_interval) {
-    interval = new_interval;
+    if (interval > 0)
+        interval = new_interval;
 }
 
 // Muster setzen
@@ -58,35 +57,28 @@ void Neostrip::set_pattern(uint8_t* pattern, int pattern_length, int start, int 
     
     for (int i = start; i < end; i++) {
         uint8_t r, g, b;
-        Serial.println(i);
+        // Serial.println(i);
         byteToRgb2222(pattern[i % pattern_length], &r, &g, &b); 
         strip.SetPixelColor(i, RgbColor(r, g, b));
     }
-    last_tick_ms = millis();
+    // https://github.com/Makuna/NeoPixelBus/wiki/NeoPixelBus-object-API
+    // bool CanShow() ??
+    // bool IsDirty() ??
+
+    need_show = true;
+    //last_tick_ms = millis();
 }
 
 // Rotation nach rechts
 void Neostrip::rotate_right() {
-    /*
-    uint32_t last_pixel = strip.GetPixelColor(number_of_pixels - 1);
-    for (int i = number_of_pixels - 1; i > 0; i--) {
-        pixels.setPixelColor(i, pixels.getPixelColor(i - 1));
-    }
-    pixels.setPixelColor(0, last_pixel);
-    pixels.show();
-    */
+    strip.RotateRight(1);
+    need_show = true;
 }
 
 // Rotation nach links
 void Neostrip::rotate_left() {
-    /*
-    uint32_t first_pixel = pixels.getPixelColor(0);
-    for (int i = 0; i < number_of_pixels - 1; i++) {
-        pixels.setPixelColor(i, pixels.getPixelColor(i + 1));
-    }
-    pixels.setPixelColor(number_of_pixels - 1, first_pixel);
-    pixels.show();
-    */
+    strip.RotateLeft(1);
+    need_show = true;
 }
 
 // Verarbeitung von JSON-Daten
@@ -100,17 +92,11 @@ void Neostrip::process_input(const char* input_data) {
         return;
     }
     Serial.println(F("Parsing JSON OK"));
-
-    if (doc["pixels"].is<int>()) {
-        Serial.println(F("set number of pixels"));
-        set_number_of_pixels(doc["pixels"]);
-    }
+    int autoclear = 1;
+    if (doc["autoclear"].is<int>()) autoclear = doc["autoclear"]; 
     if (doc["pattern"].is<JsonArray>()) {
         Serial.println(F("pattern detected"));
-        if (doc["autoclear"] == 1) {
-            Serial.println(F("autoclear detected"));
-            strip.ClearTo(RgbColor(0, 0, 0));
-        }
+        if (autoclear == 1) strip.ClearTo(RgbColor(0, 0, 0));
         JsonArray pattern = doc["pattern"];
         int pattern_length = pattern.size();
         uint8_t pattern_array[pattern_length];
@@ -120,20 +106,25 @@ void Neostrip::process_input(const char* input_data) {
         }
         set_pattern(pattern_array, pattern_length, doc["start"] | 0, doc["repeat"] | 0);
     }
-    //if (doc["interval"].is<int>()) {
-    //    set_interval(doc["interval"]);
-    //}
-    //if (doc["mode"].is<const char*>()) {
-    //    set_mode(doc["mode"]);
-    //}
+    if (doc["interval"].is<int>()) {
+        set_interval(doc["interval"]);
+    }
+
+    if (doc["mode"].is<const char*>()) {
+        set_mode(doc["mode"]);
+    }
 }
 
 void Neostrip::processing() {
+    Serial.print("Processing:");
+    Serial.print(neo_pin);
+    Serial.print(":");
+    Serial.println(mode);
     if (strcmp(mode, "off") == 0) {
         strip.ClearTo(RgbColor(0, 0, 0));
-    } else if (strcmp(mode, "right") == 0) {
+    } else if (strcmp(mode, "rotate-right") == 0) {
         rotate_right();
-    } else if (strcmp(mode, "left") == 0) {
+    } else if (strcmp(mode, "rotate-left") == 0) {
         rotate_left();
     }
 }
