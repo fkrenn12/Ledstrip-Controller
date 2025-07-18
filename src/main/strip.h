@@ -9,10 +9,10 @@
 
 class Neostrip {
 private:
-    const char* MODES[6] = {"off", "on", "rotate-left", "rotate-right", "shift-left", "shift-right"};
+    String MODES[6] = {"off", "on", "rotate-left", "rotate-right", "shift-left", "shift-right"};
     int neo_pin;
     int number_of_pixels; 
-    char* mode;
+    String mode;
     //NeoPixelBus<NeoGrbFeature, NeoWs2812xMethod> strip(PixelCount, PixelPin);
 
 public:
@@ -23,7 +23,7 @@ public:
     bool need_show; 
     unsigned long last_tick_ms;
     // Methoden
-    void set_mode(const char* new_mode);
+    void set_mode(String new_mode);
     void set_number_of_pixels(int new_number_of_pixels);
     void set_interval(int new_interval);
     void set_pattern(uint8_t* pattern, int pattern_length, int start = 0, int repeat = 0);

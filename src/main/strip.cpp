@@ -13,12 +13,14 @@ Neostrip::Neostrip(int neo_pin, int interval, int number_of_pixels)
 }
 
 // Modus setzen
-void Neostrip::set_mode(const char* new_mode) {
-    for (const char* valid_mode : MODES) {
+void Neostrip::set_mode(String new_mode) {
+    for (String valid_mode : MODES) {
         Serial.print(valid_mode);
         Serial.println(new_mode);
-        if (strcmp(new_mode, valid_mode) == 0) {
-            strcpy(mode, new_mode);
+        // if (strcmp(new_mode, valid_mode) == 0) {
+        if (new_mode == valid_mode) {
+            //strcpy(mode, new_mode);
+            mode = new_mode;
             // mode = new_mode;
             Serial.println("set-mode done");
             Serial.print("new mode is ");
@@ -111,9 +113,10 @@ void Neostrip::process_input(const char* input_data) {
         set_interval(doc["interval"]);
     }
 
-    if (doc["mode"].is<const char*>()) {
-        set_mode(doc["mode"]);
-        // strcpy(mode, doc["mode"]);
+    if (doc["mode"].is<String>()) {
+        String mode = doc["mode"];
+        Serial.println("Mode " + mode);
+        set_mode(mode);        
     }
 }
 
@@ -122,11 +125,11 @@ void Neostrip::processing() {
     Serial.print(neo_pin);
     Serial.print(":");
     Serial.println(mode);
-    if (strcmp(mode, "off") == 0) {
+    if (mode == "off") {
         strip.ClearTo(RgbColor(0, 0, 0));
-    } else if (strcmp(mode, "rotate-right") == 0) {
+    } else if (mode == "rotate-right") {
         rotate_right();
-    } else if (strcmp(mode, "rotate-left") == 0) {
+    } else if (mode == "rotate-left") {
         rotate_left();
     }
 }
