@@ -112,6 +112,7 @@ void Neostrip::process_input(const char* input_data) {
 
     if (doc["mode"].is<const char*>()) {
         set_mode(doc["mode"]);
+        // strcpy(mode, doc["mode"]);
     }
 }
 
