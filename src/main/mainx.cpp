@@ -9,7 +9,7 @@
 
 // {"pin": 2, "autoclear": 1, "pattern": [240,204,195] ,"repeat": 1, "interval":100, "mode":"right","first":1, "last":144, "count":144}
 
-void show_all_strips();
+void show_strips();
 void create_strips();
 // Globale Zuweisung der Streifen
 #define NUM_STRIPS 8
@@ -37,7 +37,7 @@ void create_strips() {
     Serial.println("Finished creating and initial strips");
 }
 
-void show_all_strips() {
+void show_strips() {
     // Serial.println("update all strips");
     for (int i = 0; i < NUM_STRIPS; i++) {
         Neostrip* strip = strip_mapping[i];
@@ -79,7 +79,7 @@ void idle() {
     {
         last_tick_ms = currentMillis;
         digitalWrite(INDICATOR_LED_PIN, HIGH);
-        show_all_strips(); 
+        show_strips(); 
         digitalWrite(INDICATOR_LED_PIN, LOW);
     }
 }
@@ -96,29 +96,25 @@ void process_received_message(char* message) {
   // Parse den JSON-String
   DeserializationError error = deserializeJson(doc, message);
   if (error) {
-    Serial.println("Error parsing the message - " + String(error.c_str()));
+    Serial.println("Error parsing JSON " + String(error.c_str()));
     return;
   }
-  Serial.println("JSON message parsed successfully.");
-  int pin = -1;
-  if (doc["pin"].is<int>()) pin = doc["pin"]; 
-  int index = index_of_pin(pin);
+  Serial.println(F("Parsing JSON OK"));
+  int index = index_of_pin(doc["pin"] | -1);
   Serial.println("Index: " + String(index));
   if (index < 0) return;
-  Serial.println("Pin "+String(pin)+" is valid"); 
 
+  Serial.println("Pin is valid"); 
   Neostrip* strip = strip_mapping[index];
-  if (doc["pixels"].is<int>()) {
-        int pixels = doc["pixels"];
-        if (pixels != strip->strip.PixelCount()) {
-        Serial.println("set number of pixels");
-        delete strip;
-        int interval = DEFAULT_INTERVAL_MS;
-        if (doc["interval"].is<int>()) interval = doc["interval"]; 
-        strip_mapping[index] = new Neostrip(NEO_PIXEL_PINS[index],interval,pixels);
-    }
+  int pixels = doc["pixels"] | -1;
+  if ((pixels > 0) && (pixels != strip->strip.PixelCount())) {
+    Serial.println("Deleting strip");
+    delete strip;
+    int interval = doc["interval"] | DEFAULT_INTERVAL_MS;
+    Serial.println("Recreating strip");
+    strip_mapping[index] = new Neostrip(NEO_PIXEL_PINS[index],interval,pixels);
   }
-  strip_mapping[index]->process_input(message);
+  strip_mapping[index]->process_input(doc);
 }
 
 void setup() {

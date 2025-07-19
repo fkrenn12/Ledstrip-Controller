@@ -29,7 +29,7 @@ public:
     void set_pattern(uint8_t* pattern, int pattern_length, int start = 0, int repeat = 0);
     void rotate_right();
     void rotate_left();
-    void process_input(const char* input_data);
+    void process_input(JsonDocument doc);
     void processing();
     void show();
 };
