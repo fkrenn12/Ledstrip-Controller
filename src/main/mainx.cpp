@@ -16,6 +16,7 @@ void create_strips();
 #define MAX_PIXEL_PER_STRIP 1000
 int NEO_PIXEL_PINS[NUM_STRIPS] = {2,3,4,5,6,7,44,9};
 Neostrip* strip_mapping[NUM_STRIPS];
+String animation = "off";
 
 void create_strips() {
     Serial.println("Starting to create and initial strips");
@@ -68,6 +69,10 @@ void idle() {
         // Überprüfe, ob die Zeitdifferenz größer als das Intervall ist
         if (currentMillis- led_strip->last_tick_ms > led_strip->interval) {
             led_strip->last_tick_ms = currentMillis; // Aktualisiere den letzten Tick
+            if (animation == "off")  {
+                led_strip->last_tick_ms = 0;
+                continue;
+            }
             led_strip->processing();           // Verarbeite den aktuellen Modus
         }
         need_show_strip = need_show_strip || led_strip->need_show;
@@ -100,6 +105,16 @@ void process_received_message(char* message) {
     return;
   }
   Serial.println(F("Parsing JSON OK"));
+
+  if (doc["animation"].is<String>()) {
+    if (doc["animation"] == "off") {
+      animation = "off";
+    } else {
+      animation = "on";
+    }
+    Serial.println("Animation is " + animation);
+  }  
+
   int index = index_of_pin(doc["pin"] | -1);
   Serial.println("Index: " + String(index));
   if (index < 0) return;
@@ -134,46 +149,3 @@ void loop() {
   process_received_message(line);
   // digitalWrite(INDICATOR_LED_PIN, LOW);
 }
-
-// https://github.com/Makuna/NeoPixelBus/blob/master/examples/ESP32/NeoPixel_ESP32_LcdParallel/NeoPixel_ESP32_LcdParallel.ino
-
-// ##########################################################
-//  Dynamisches erstellen und löschen von Streifen
-// ##########################################################
-/*
-// declare your object as dynamic, a pointer to it, the *
-// a good practice is to set it NULL
-NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>* strip = NULL;
-
-void setup() {
-...
-// inside setup, allocate your default, or maybe you don't do this and just wait for outside influence
-    PixelCountChanged(1); 
-...
-}
-
-bool PixelCountChanged(uint16_t newCount) {
-    if (strip != NULL) {  
-       delete strip; // delete the previous dynamically created strip
-    }
-    strip = new NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>(newCount, Pin); // and recreate with new count
-    if (strip == NULL) {
-        Serial.println("OUT OF MEMORY");
-        return false;
-    }
-    strip->Begin();
-    return true;
-}
-
-void loop() {
-// other parts of your code, you set the colors, and show
-    if (strip != NULL) { 
-        // some arbitrary code
-        for (uint16_t pixel = 0; pixel < strip->PixelCount(); pixel++) {
-            strip->SetPixelColor(pixel, red);
-        }
-        strip->Show();
-    }
-}
-
-*/
