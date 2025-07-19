@@ -91,24 +91,23 @@ void idle() {
 void_func_void callback_idle = idle;
 
 void process_received_message(char* message) {
-  Serial.write(message);
-  Serial.write('\n');
+  Serial.println(message);
   JsonDocument doc;
   // Parse den JSON-String
   DeserializationError error = deserializeJson(doc, message);
   if (error) {
-    Serial.print("Fehler beim Parsen: ");
-    Serial.println(error.c_str());
+    Serial.println("Error parsing the message - " + String(error.c_str()));
     return;
   }
-  Serial.write("JSON-String erfolgreich geparst.\n");
-  int pin = doc["pin"];
+  Serial.println("JSON message parsed successfully.");
+  int pin = -1;
+  if (doc["pin"].is<int>()) pin = doc["pin"]; 
   Serial.println(pin);
   int index = index_of_pin(pin);
-  Serial.print("Index: ");
-  Serial.println(index);
+  Serial.println("Index: " + String(index));
+  // Serial.println(index);
   if (index < 0) return;
-  Serial.println("Pin is valid"); 
+  Serial.println("Pin "+String(pin)+" is valid"); 
 
   Neostrip* strip = strip_mapping[index];
   if (doc["pixels"].is<int>()) {
