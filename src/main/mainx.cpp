@@ -102,10 +102,8 @@ void process_received_message(char* message) {
   Serial.println("JSON message parsed successfully.");
   int pin = -1;
   if (doc["pin"].is<int>()) pin = doc["pin"]; 
-  Serial.println(pin);
   int index = index_of_pin(pin);
   Serial.println("Index: " + String(index));
-  // Serial.println(index);
   if (index < 0) return;
   Serial.println("Pin "+String(pin)+" is valid"); 
 
