@@ -3,10 +3,10 @@
 
 
 
-#define INDICATOR_LED_PIN 8
+#define INDICATOR_LED_PIN 9
 
 // Konstanten für NeoPixel und Farben
-#define NEO_PIXEL_PIN_BUILTIN 9
+// #define NEO_PIXEL_PIN_BUILTIN 9
 #define NUM_PIXELS 10
 
 #define GREEN_COLOR 0, 10, 0

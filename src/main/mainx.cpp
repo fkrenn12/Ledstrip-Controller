@@ -15,7 +15,7 @@ void create_strips();
 // Globale Zuweisung der Streifen
 #define NUM_STRIPS 8
 #define MAX_PIXEL_PER_STRIP 1000
-int NEO_PIXEL_PINS[NUM_STRIPS] = {2,3,4,5,6,7,44,9};
+int NEO_PIXEL_PINS[NUM_STRIPS] = {2,3,4,5,6,43,44,7};
 Neostrip* strip_mapping[NUM_STRIPS];
 int display_run_animation = 0;
 int display_update_trigger = 0;
