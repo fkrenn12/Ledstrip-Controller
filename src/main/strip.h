@@ -9,12 +9,16 @@
 
 class Neostrip {
 private:
-    String MODES[6] = {"off", "on", "rotate-left", "rotate-right", "shift-left", "shift-right"};
+    String ANIMATION_MODES[6] = {"off", "on", "rotate-left", "rotate-right", "shift-left", "shift-right"};
+    String UPDATE_MODES[3] = {"immediately", "triggered"};
     int neo_pin;
     int number_of_pixels; 
-    String mode;
+    u8_t shadow_strip[1000];
+    bool shadow_strip_dirty;
+    String animation_mode;
+    void rotate_right();
+    void rotate_left();
     //NeoPixelBus<NeoGrbFeature, NeoWs2812xMethod> strip(PixelCount, PixelPin);
-
 public:
     // Konstruktor
     NeoPixelBus<NeoGrbFeature, NeoEsp32LcdX8Ws2812xMethod> strip; // note: modern WS2812 with letter like WS2812b
@@ -22,15 +26,16 @@ public:
     int interval;
     bool need_show; 
     unsigned long last_tick_ms;
+    String update_mode;
     // Methoden
-    void set_mode(String new_mode);
+    void set_animation_mode(String new_mode);
+    void set_update_mode(String new_mode);
     void set_number_of_pixels(int new_number_of_pixels);
     void set_interval(int new_interval);
     void set_pattern(uint8_t* pattern, int pattern_length, int start = 0, int repeat = 0);
-    void rotate_right();
-    void rotate_left();
     void process_input(JsonDocument doc);
-    void processing();
+    void animate();
+    void transfer_shadow_into_strip_if_dirty();
     void show();
 };
 
