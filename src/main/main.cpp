@@ -1,29 +1,26 @@
 #include <Arduino.h>
 #include <NeoPixelBus.h>
 #include <ArduinoJson.h>
-#include "mainx.h"
+#include "main.h"
 #include "uart.h"
 #include <map>
 #include <string>
 #include "strip.h"
-
-// {"pin": 2, "autoclear": 1, "pattern": [240,204,195] ,"repeat": 1, "interval":100, "mode":"right","first":1, "last":144, "count":144}
-// {"animation":"off", "show":"off", "pin": 3, "pixels":100, "autoclear":1, "pattern": [240, 200],  "repeat": 1, "interval":100, "mode":"rotate-right","first":1, "last":144, "count":144}
+#include "main.h"
 
 void show_strips();
 void create_strips();
 // Globale Zuweisung der Streifen
-#define NUM_STRIPS 8
-const int NEO_PIXEL_PINS[NUM_STRIPS] = {2,3,4,5,6,43,44,7};
+const int NEO_PIXEL_PINS[NUM_STRIPS] = ARRAY_OF_ORDERED_STRIP_PINS;
 Neostrip* strip_mapping[NUM_STRIPS];
-int display_run_animation = 0;
+int display_run_animation = DEFAULT_RUN_ANIMATION_AT_START;
 int display_update_trigger = 0;
 
 void create_strips() {
     Serial.println("Starting to create and initial strips");
     Serial.println("Create strips with max number of pixels");
     for (int i = 0; i < NUM_STRIPS; i++) {
-        strip_mapping[i] = new Neostrip(NEO_PIXEL_PINS[i],DEFAULT_INTERVAL_MS, MAX_PIXEL_PER_STRIP);
+        strip_mapping[i] = new Neostrip(NEO_PIXEL_PINS[i],DEFAULT_ANIMATION_INTERVAL_MS_AT_START, MAX_PIXEL_PER_STRIP);
     }
     return;
     // deleting and recreating does not work !!
@@ -34,7 +31,7 @@ void create_strips() {
     }
     Serial.println("Recreate strips with default number of pixels");
     for (int i = 0; i < NUM_STRIPS; i++) {
-        strip_mapping[i] = new Neostrip(NEO_PIXEL_PINS[i], DEFAULT_INTERVAL_MS,DEFAULT_NUMBER_OF_PIXELS);
+        strip_mapping[i] = new Neostrip(NEO_PIXEL_PINS[i], DEFAULT_ANIMATION_INTERVAL_MS_AT_START,DEFAULT_NUMBER_OF_PIXELS_AT_START);
     }
     Serial.println("Finished creating and initial strips");
 }
@@ -117,7 +114,7 @@ void process_received_message(char* message) {
             Serial.println("Deleting strip");
             strip->strip.ClearTo(RgbColor(0, 0, 0));
             delete strip;
-            int interval = doc["interval"] | DEFAULT_INTERVAL_MS;
+            int interval = doc["interval"] | DEFAULT_ANIMATION_INTERVAL_MS_AT_START;
             Serial.println("Recreating strip");
             strip_mapping[index] = new Neostrip(NEO_PIXEL_PINS[index],interval,pixels);
         }
@@ -128,11 +125,11 @@ void process_received_message(char* message) {
 void setup() {
   Serial.begin(9600);  // monitor
   Serial1.begin(UART_BAUDRATE, SERIAL_8N1, UART_RX_PIN);
-  Serial.println(heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+  // Serial.println(heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
   pinMode(INDICATOR_LED_PIN, OUTPUT);
   digitalWrite(INDICATOR_LED_PIN, HIGH); 
   create_strips();
-  Serial.println(heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+  // Serial.println(heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
 }
 
 void loop() {

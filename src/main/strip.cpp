@@ -1,8 +1,9 @@
-#include "strip.h"
+
 #include "rgb.h"
 #include <ArduinoJson.h>
 #include <NeoPixelBus.h>
-
+#include "main.h"
+#include "strip.h"
 
 // Konstruktor
 Neostrip::Neostrip(u8_t neo_pin, u16_t interval, u16_t number_of_pixels)

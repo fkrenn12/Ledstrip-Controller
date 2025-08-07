@@ -3,17 +3,14 @@
 
 #include <NeoPixelBus.h>
 #include <ArduinoJson.h>
-
-#define MAX_PIXEL_PER_STRIP 1000
-#define DEFAULT_INTERVAL_MS 10000
-#define DEFAULT_NUMBER_OF_PIXELS 10
+#include "main.h"
 
 class Neostrip {
 private:
     String ANIMATION_MODES[6] = {"off", "rotate-left", "rotate-right", "shift-left", "shift-right"};
     String UPDATE_MODES[3] = {"instant", "triggered"};
     u8_t neo_pin;
-    u16_t number_of_pixels = DEFAULT_NUMBER_OF_PIXELS; 
+    u16_t number_of_pixels = DEFAULT_NUMBER_OF_PIXELS_AT_START; 
     u8_t shadow_strip[1000] ={0};  
     bool shadow_strip_dirty;
     String animation_mode;
@@ -21,7 +18,7 @@ private:
 public:
     // Konstruktor
     NeoPixelBus<NeoGrbFeature, NeoEsp32LcdX8Ws2812xMethod> strip; // note: modern WS2812 with letter like WS2812b
-    Neostrip(u8_t neo_pin, u16_t interval = DEFAULT_INTERVAL_MS, u16_t number_of_pixels = DEFAULT_NUMBER_OF_PIXELS);
+    Neostrip(u8_t neo_pin, u16_t interval = DEFAULT_ANIMATION_INTERVAL_MS_AT_START, u16_t number_of_pixels = DEFAULT_NUMBER_OF_PIXELS_AT_START);
     u16_t interval;
     bool need_show; 
     u64_t last_tick_ms;
