@@ -5,7 +5,7 @@
 
 
 // Konstruktor
-Neostrip::Neostrip(int neo_pin, int interval, int number_of_pixels)
+Neostrip::Neostrip(u8_t neo_pin, u16_t interval, u16_t number_of_pixels)
     : neo_pin(neo_pin), number_of_pixels(number_of_pixels), interval(interval), animation_mode("off"), 
       update_mode("instant"), last_tick_ms(0), need_show(false),shadow_strip_dirty(false),
       strip(number_of_pixels, neo_pin){
@@ -43,31 +43,29 @@ void Neostrip::show() {
 }
 
 // Pixelanzahl setzen
-void Neostrip::set_number_of_pixels(int new_number_of_pixels) {
+void Neostrip::set_number_of_pixels(u16_t new_number_of_pixels) {
+        if (new_number_of_pixels > 0 && new_number_of_pixels <= MAX_PIXEL_PER_STRIP)
         number_of_pixels = new_number_of_pixels;
 
 }
 
 // Intervall setzen
-void Neostrip::set_interval(int new_interval) {
+void Neostrip::set_interval(u16_t new_interval) {
     if (interval > 0)
         interval = new_interval;
         last_tick_ms = millis();
 }
 
 // Muster setzen
-void Neostrip::set_pattern(uint8_t* pattern, int pattern_length, int start, int repeat, int autoclear) {
-    start = max(1, start) - 1;
-    int end = (repeat == 0) ? number_of_pixels : min(repeat * pattern_length + start, number_of_pixels);
+// void Neostrip::set_pattern(uint8_t* pattern, int pattern_length, int start, int repeat, int add) {
+void Neostrip::set_pattern(JsonArray pattern, u16_t start, u16_t repeat, u16_t add) {
+    u16_t pattern_length = pattern.size();
+    start = max(1, (int)start) - 1;
+    u16_t end = (repeat == 0) ? number_of_pixels : min(repeat * pattern_length + start, (int)number_of_pixels);
     Serial.println("Set pattern -> First pixel " + String(start) + " Last pixel " + String(end));
 
-    for (int i = 0; i < number_of_pixels; i++) {
-        if (autoclear == 1)
-            shadow_strip[i] = (i >= start && i < end) ? pattern[(i-start) % pattern_length] : 0;
-        else 
-            shadow_strip[i] = (i >= start && i < end) ? pattern[(i-start) % pattern_length] : shadow_strip[i];
-        // Serial.println("Shadow strip " + String(i) + " " + String(shadow_strip[i]));
-    }
+    for (u16_t i = 0; i < number_of_pixels; i++) 
+        shadow_strip[i] = (i >= start && i < end) ? pattern[(i-start) % pattern_length] : (add == 1) ? shadow_strip[i] : 0;
     shadow_strip_dirty = true;
     Serial.println("Status of shadow strip dirty" + String( shadow_strip_dirty));
     
@@ -79,7 +77,7 @@ void Neostrip::set_pattern(uint8_t* pattern, int pattern_length, int start, int 
 void Neostrip::transfer_shadow_into_strip_if_dirty() {
     Serial.println("Transfer shadow into strip if dirty " + String( shadow_strip_dirty));
     if (!shadow_strip_dirty) return;
-    for (int i = 0; i < number_of_pixels; i++) {
+    for (u16_t i = 0; i < number_of_pixels; i++) {
         uint8_t r, g, b;
         byteToRgb2222(shadow_strip[i], &r, &g, &b); 
         // Serial.println(String(i) + " " + String(r) + " " + String(g) + " " + String(b));
@@ -91,7 +89,6 @@ void Neostrip::transfer_shadow_into_strip_if_dirty() {
 
 // Verarbeitung von JSON-Daten
 void Neostrip::process_input(JsonDocument doc) {
-    int autoclear = doc["autoclear"] | 1;
 
     if (doc["update-mode"].is<String>()) {
         set_update_mode(doc["update-mode"]);
@@ -105,15 +102,15 @@ void Neostrip::process_input(JsonDocument doc) {
         set_animation_mode(doc["animation-mode"]);        
     }
 
+    if (doc["pattern-add"].is<JsonArray>())
+    {
+        Serial.println(F("pattern-add detected"));
+        set_pattern(doc["pattern-add"], doc["first"] | 0, doc["repeat"] | 0, 1);
+    }
+
     if (doc["pattern"].is<JsonArray>()) {
         Serial.println(F("pattern detected"));
-        JsonArray pattern = doc["pattern"];
-        int pattern_length = pattern.size();
-        uint8_t pattern_array[pattern_length];
-        for (int i = 0; i < pattern_length; i++) {
-            pattern_array[i] = pattern[i];
-        }
-        set_pattern(pattern_array, pattern_length, doc["first"] | 0, doc["repeat"] | 0, autoclear);
+        set_pattern(doc["pattern"], doc["first"] | 0, doc["repeat"] | 0, 0);
     }
 }
 

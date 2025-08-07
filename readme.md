@@ -28,11 +28,12 @@ The possible values for the **brighness channel** in **binär**:
 
 ### Setup strip 
 
-{"strip": 1, "update-mode":"triggered", "pixels":100, "autoclear":1, "pattern": [100, 240, 200],  "repeat": 1, "interval":100, "animation-mode":"rotate-right"}
+{"strip": 1, "update-mode":"triggered", "pixels":100, "pattern-add": [100, 240, 200],  "repeat": 1, "interval":100, "animation-mode":"rotate-right"}
 
-{"strip": 2, "update-mode":"instant", "pixels":100, "autoclear":1, "repeat": 0, "interval":100, "animation-mode":"rotate-right"}
+{"strip": 2, "update-mode":"instant", "pixels":100, "repeat": 0, "interval":100, "animation-mode":"rotate-right"}
 
 {"strip": 1, "pattern": [100, 240, 200]}
+{"strip": 1, "pattern-add": [100, 240, 200], "first":20}
 
 {"animation":0}
 
