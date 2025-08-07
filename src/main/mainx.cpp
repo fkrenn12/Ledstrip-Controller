@@ -91,9 +91,9 @@ void idle() {
     if ((currentMillis - last_tick_ms > lowest_led_strip_interval) || need_show_strips)
     {
         last_tick_ms = currentMillis;
-        digitalWrite(INDICATOR_LED_PIN, HIGH);
-        show_strips(); 
         digitalWrite(INDICATOR_LED_PIN, LOW);
+        show_strips(); 
+        digitalWrite(INDICATOR_LED_PIN, HIGH);
     }
 }
 
@@ -146,14 +146,13 @@ void setup() {
   Serial1.begin(UART_BAUDRATE, SERIAL_8N1, UART_RX_PIN);
   Serial.println(heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
   pinMode(INDICATOR_LED_PIN, OUTPUT);
-  digitalWrite(INDICATOR_LED_PIN, LOW); 
+  digitalWrite(INDICATOR_LED_PIN, HIGH); 
   create_strips();
   Serial.println(heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
 }
 
 void loop() {
+  // endless main loop
   char* line = read_uart_line_blocking(callback_idle,'\n');
-  // digitalWrite(INDICATOR_LED_PIN, HIGH);
   process_received_message(line);
-  // digitalWrite(INDICATOR_LED_PIN, LOW);
 }

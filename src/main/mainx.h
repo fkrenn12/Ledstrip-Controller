@@ -2,8 +2,8 @@
 #define MAINX_H
 
 
-
-#define INDICATOR_LED_PIN 9
+#define BUILT_IN_LED_PIN 21 
+#define INDICATOR_LED_PIN BUILT_IN_LED_PIN 
 
 // Konstanten für NeoPixel und Farben
 // #define NEO_PIXEL_PIN_BUILTIN 9
