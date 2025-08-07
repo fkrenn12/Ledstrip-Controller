@@ -5,6 +5,7 @@
 * 8 independ strips or tied to matrix display
 
 ![alt text](doc/overview.png "Overview")
+---
 
 ## RGB2222 Color Format
 The **RGB2222 format** is a method to represent colors in a compact manner using only 6 bits to define a color and 2 bits to define the brightness.   
@@ -24,7 +25,13 @@ The possible values for the **brighness channel** in **binär**:
 10: Medium intensity  
 11: Full intensity  
 
+---
+
 ## JSON Schema data format
+
+###Strip Selector  
+{"strip":<NUMEBR_OF_STRIP>} NUMBER_OF_STRIP = Integer number from 1 to 8  
+
 
 ### Setup independent strips 
 
@@ -46,7 +53,7 @@ examples:
 {"strip": 1, "pattern": [100, 240, 200]}  
 {"strip": 1, "pattern-add": [100, 240, 200], "first":20}  
 
-### Setup display strips
+### Setup matrix display strips
 {"strip": 1, "update-mode":"triggered","pixels":144}   
 {"strip": 2, "update-mode":"triggered","pixels":144}   
 {"strip": 3, "update-mode":"triggered","pixels":144}   
