@@ -11,12 +11,18 @@ The **RGB2222 format** is a method to represent colors in a compact manner using
 ### Representatin of one byte   
 BRIGHTNESS[2] RED[2] GREEN[2] BLUE[2]  
 Each segment of 2 bits can represent 4 intensity levels (from 0 to 3).
-The possible values for each channel in **binär**:  
+
+The possible values for each **color channel (RED, GREEN, BLUE)** in **binär**:  
 00: No intensity (off)  
 01: Low intensity  
 10: Medium intensity  
 11: Full intensity  
 
+The possible values for the **brighness channel** in **binär**:  
+00: Very Low intensity
+01: Low intensity  
+10: Medium intensity  
+11: Full intensity  
 
 ## JSON Schema data format
 
