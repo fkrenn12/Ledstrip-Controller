@@ -29,7 +29,7 @@ The possible values for the **brighness channel** in **binär**:
 
 ## JSON Schema data format
 
-###Strip Selector  
+### Strip Selector  
 {"strip":<NUMEBR_OF_STRIP>} NUMBER_OF_STRIP = Integer number from 1 to 8  
 
 
