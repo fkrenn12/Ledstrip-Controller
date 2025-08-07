@@ -1,14 +1,21 @@
-# Ws2812 Strip controler 
-* 8 strips
-* controlled by uart
-* json 
+# Ws2812 Strip controller 
+* Up to 8 strips with up to 1000 pixels per strip
+* Controlled by uart input 
+* Json schema data format
+* 8 independ strips or tied to matrix display
+
 ![alt text](doc/overview.png "Overview")
 
-## RGB2222 Format for color 
-bit 6,7 brightness b00 -> b11 
-bit 4,5 red b00 -> b11
-bit 2,3 green b00 -> b11
-bit 0,1 blue b00 -> b11
+## RGB2222 Color Format
+The **RGB2222 format** is a method to represent colors in a compact manner using only 6 bits to define a color and 2 bits to define the brightness.   
+Representatin of one byte   
+BR[2] RED[2] GREEN[2] BLUE[2]  
+Each segment of 2 bits can represent 4 intensity levels (from 0 to 3).
+    - The possible values for each channel in **binär**:
+        - 0: No intensity (off)
+        - 1: Low intensity
+        - 2: Medium intensity
+        - 3: Full intensity
 
 ## JSON Serialized data format
 
