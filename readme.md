@@ -26,7 +26,17 @@ The possible values for the **brighness channel** in **binär**:
 
 ## JSON Schema data format
 
-### Setup strip 
+### Setup undepenend strip 
+
+examples:
+
+{"strip": 1, "update-mode":"instant"}  // defaults pixels=10, animation mode=off, interval=100ms,  
+{"strip": 2, "update-mode":"instant", "pixels":144}
+{"strip": 3, "update-mode":"instant", "pixels":100}
+{"strip": 3, "update-mode":"instant", "pixels":55}  // redefine pixels on strip 3
+
+{"strip": 1, "pattern-add": [100, 240, 200],  "repeat": 1}
+
 
 {"strip": 1, "update-mode":"triggered", "pixels":100, "pattern-add": [100, 240, 200],  "repeat": 1, "interval":100, "animation-mode":"rotate-right"}
 

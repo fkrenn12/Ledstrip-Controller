@@ -13,7 +13,7 @@ private:
     String ANIMATION_MODES[6] = {"off", "rotate-left", "rotate-right", "shift-left", "shift-right"};
     String UPDATE_MODES[3] = {"instant", "triggered"};
     u8_t neo_pin;
-    u16_t number_of_pixels; 
+    u16_t number_of_pixels = DEFAULT_NUMBER_OF_PIXELS; 
     u8_t shadow_strip[1000] ={0};  
     bool shadow_strip_dirty;
     String animation_mode;
