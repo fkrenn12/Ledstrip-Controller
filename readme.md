@@ -19,7 +19,7 @@ The possible values for each **color channel (RED, GREEN, BLUE)** in **binär**:
 11: Full intensity  
 
 The possible values for the **brighness channel** in **binär**:  
-00: Very Low intensity
+00: Very Low intensity  
 01: Low intensity  
 10: Medium intensity  
 11: Full intensity  
@@ -30,7 +30,7 @@ The possible values for the **brighness channel** in **binär**:
 
 {"strip": 1, "update-mode":"triggered", "pixels":100, "autoclear":1, "pattern": [100, 240, 200],  "repeat": 1, "interval":100, "animation-mode":"rotate-right"}
 
-{"strip": 2, "update":"immediately", "pixels":100, "autoclear":1, "repeat": 0, "interval":100, "mode":"rotate-right"}
+{"strip": 2, "update-mode":"instant", "pixels":100, "autoclear":1, "repeat": 0, "interval":100, "animation-mode":"rotate-right"}
 
 {"strip": 1, "pattern": [100, 240, 200]}
 

@@ -41,19 +41,17 @@ void create_strips() {
 }
 
 void show_strips() {
-    // Serial.println("update all strips");
     for (int i = 0; i < NUM_STRIPS; i++) {
         Neostrip* strip = strip_mapping[i];
         strip->show();
     }
 }
 
-int index_of_pin(int pin) {
-  for (size_t i = 0; i < NUM_STRIPS; i++) {
-      if (NEO_PIXEL_PINS[i] == pin) return i; 
-  }
-  return -1; 
+int index_of_strip_number(int strip) {
+    if (strip < 1 || strip > NUM_STRIPS) return -1;
+    return strip - 1;
 }
+
 
 void idle() {
     bool need_show_strips = false;
@@ -75,19 +73,10 @@ void idle() {
             if (!display_run_animation) continue;
             led_strip->animate();
         }
-
-        /*
-        if ((need_show_strips |= led_strip->need_show) && display_update_immediately) {
-            led_strip->need_show = false;
-        }
-            */
         if (need_show_strips |= led_strip->need_show) {
             led_strip->need_show = false;
         }
     }
-
-
-    // if (display_update_immediately && ((currentMillis - last_tick_ms > lowest_led_strip_interval) || need_show_strips))
     if ((currentMillis - last_tick_ms > lowest_led_strip_interval) || need_show_strips)
     {
         last_tick_ms = currentMillis;
@@ -97,10 +86,6 @@ void idle() {
     }
 }
 
-
-//void idle() {
-//  digitalWrite(INDICATOR_LED_PIN, !digitalRead(INDICATOR_LED_PIN));
-//}
 void_func_void callback_idle = idle;
 
 void process_received_message(char* message) {
@@ -122,11 +107,11 @@ void process_received_message(char* message) {
 
   display_update_trigger = doc["update-trigger"] | 0;
 
-  int index = index_of_pin(doc["pin"] | -1);
+  int index = index_of_strip_number(doc["strip"] | -1);
   Serial.println("Index: " + String(index));
 
   if (index >= 0) {
-    Serial.println("Pin is valid"); 
+    Serial.println("Strip is valid"); 
     Neostrip* strip = strip_mapping[index];
     int pixels = doc["pixels"] | -1;
     if ((pixels > 0) && (pixels != strip->strip.PixelCount())) {
