@@ -31,19 +31,33 @@ The possible values for the **brighness channel** in **binär**:
 examples:
 
 {"strip": 1, "update-mode":"instant"}  // defaults pixels=10, animation mode=off, interval=100ms,  
-{"strip": 2, "update-mode":"instant", "pixels":144}
-{"strip": 3, "update-mode":"instant", "pixels":100}
-{"strip": 3, "update-mode":"instant", "pixels":55}  // redefine pixels on strip 3
+{"strip": 2, "update-mode":"instant", "pixels":144}  
+{"strip": 3, "update-mode":"instant", "pixels":100}  
+{"strip": 3, "update-mode":"instant", "pixels":55}  // redefine pixels on strip 3  
 
-{"strip": 1, "pattern-add": [100, 240, 200],  "repeat": 1}
+{"strip": 1, "pattern": [100, 240, 200],  "repeat": 1}  // default first=0  
+{"strip": 1, "pattern-add": [100, 240, 200],  "first":20, "repeat": 1}  
+{"strip": 1, "pattern-add": [100, 240, 200],  "repeat": 2, "first": 40}  
 
+{"strip": 1, "update-mode":"triggered", "pixels":100, "pattern-add": [100, 240, 200],  "repeat": 1, "interval":100, "animation-mode":"rotate-right"}  
 
-{"strip": 1, "update-mode":"triggered", "pixels":100, "pattern-add": [100, 240, 200],  "repeat": 1, "interval":100, "animation-mode":"rotate-right"}
+{"strip": 2, "update-mode":"instant", "pixels":100, "repeat": 0, "interval":100, "animation-mode":"rotate-right"}  
 
-{"strip": 2, "update-mode":"instant", "pixels":100, "repeat": 0, "interval":100, "animation-mode":"rotate-right"}
+{"strip": 1, "pattern": [100, 240, 200]}  
+{"strip": 1, "pattern-add": [100, 240, 200], "first":20}  
 
-{"strip": 1, "pattern": [100, 240, 200]}
-{"strip": 1, "pattern-add": [100, 240, 200], "first":20}
+### Setup display strips
+{"strip": 1, "update-mode":"triggered","pixels":144}   
+{"strip": 2, "update-mode":"triggered","pixels":144}   
+{"strip": 3, "update-mode":"triggered","pixels":144}   
+{"strip": 4, "update-mode":"triggered","pixels":144}   
+{"strip": 5, "update-mode":"triggered","pixels":144}   
+{"strip": 6, "update-mode":"triggered","pixels":144}   
+{"strip": 7, "update-mode":"triggered","pixels":144}   
+{"strip": 8, "update-mode":"triggered","pixels":144}   
+
+Display with 8 rows and 144 coloumns, so we have 8 * 144 = 1152 Pixels managed  
+
 
 {"animation":0}
 
