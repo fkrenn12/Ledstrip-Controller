@@ -26,7 +26,7 @@ The possible values for the **brighness channel** in **binär**:
 
 ## JSON Schema data format
 
-### Setup undepenend strip 
+### Setup independent strips 
 
 examples:
 
@@ -57,6 +57,7 @@ examples:
 {"strip": 8, "update-mode":"triggered","pixels":144}   
 
 Display with 8 rows and 144 coloumns, so we have 8 * 144 = 1152 Pixels managed  
+
 
 
 {"animation":0}
