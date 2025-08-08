@@ -84,6 +84,26 @@ void idle() {
 
 void_func_void callback_idle = idle;
 
+
+void process_strip(JsonDocument doc, int index)
+{
+    Serial.println("Index: " + String(index));
+    if (index >= 0) {
+        Serial.println("Strip is valid"); 
+        Neostrip* strip = strip_mapping[index];
+        int pixels = doc["pixels"] | -1;
+        if ((pixels > 0) && (pixels != strip->strip.PixelCount())) {
+            Serial.println("Deleting strip");
+            strip->strip.ClearTo(RgbColor(0, 0, 0));
+            delete strip;
+            int interval = doc["interval"] | DEFAULT_ANIMATION_INTERVAL_MS_AT_START;
+            Serial.println("Recreating strip");
+            strip_mapping[index] = new Neostrip(NEO_PIXEL_PINS[index],interval,pixels);
+        }
+        strip_mapping[index]->process_input(doc);
+    }
+}
+
 void process_received_message(char* message) {
     Serial.println(message);
     JsonDocument doc;
@@ -103,23 +123,13 @@ void process_received_message(char* message) {
 
     display_update_trigger = doc["update-trigger"] | 0;
 
-    int index = index_of_strip_number(doc["strip"] | -1);
-    Serial.println("Index: " + String(index));
-
-    if (index >= 0) {
-        Serial.println("Strip is valid"); 
-        Neostrip* strip = strip_mapping[index];
-        int pixels = doc["pixels"] | -1;
-        if ((pixels > 0) && (pixels != strip->strip.PixelCount())) {
-            Serial.println("Deleting strip");
-            strip->strip.ClearTo(RgbColor(0, 0, 0));
-            delete strip;
-            int interval = doc["interval"] | DEFAULT_ANIMATION_INTERVAL_MS_AT_START;
-            Serial.println("Recreating strip");
-            strip_mapping[index] = new Neostrip(NEO_PIXEL_PINS[index],interval,pixels);
-        }
-        strip_mapping[index]->process_input(doc);
+    if (doc["strips"].is<JsonArray>()) {
+        JsonArray strips = doc["strips"];
+        for (u8_t i=0; i<strips.size();i++) process_strip(doc, (int)index_of_strip_number(strips[i]));
     }
+    
+    if (doc["strips"].is<int>()) process_strip(doc, (int)index_of_strip_number((int)doc["strips"]));
+    if (doc["strip"].is<int>())  process_strip(doc, (int)index_of_strip_number((int)doc["strip"]));
 }
 
 void setup() {
