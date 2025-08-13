@@ -8,7 +8,7 @@
 // Konstruktor
 Neostrip::Neostrip(u8_t neo_pin, u16_t interval, u16_t number_of_pixels)
     : neo_pin(neo_pin), number_of_pixels(number_of_pixels), interval(interval), animation_mode("off"), 
-      update_mode("instant"), last_tick_ms(0), need_show(false),shadow_strip_dirty(false),
+      update_mode("instant"), last_tick_ms(0), need_show(false),shadow_strip_dirty(false),brightness(0),
       strip(number_of_pixels, neo_pin){
     strip.Begin();
     strip.ClearTo(RgbColor(0, 0, 0));
@@ -57,6 +57,10 @@ void Neostrip::set_interval(u16_t new_interval) {
         last_tick_ms = millis();
 }
 
+void Neostrip::set_brightness(u8_t new_brightness) {
+    brightness = new_brightness << 6 && 0b11000000; // ensure it is between 0 and 3
+}
+
 // Muster setzen
 // void Neostrip::set_pattern(uint8_t* pattern, int pattern_length, int start, int repeat, int add) {
 void Neostrip::set_pattern(JsonArray pattern, u16_t start, u16_t repeat, u16_t add) {
@@ -80,7 +84,9 @@ void Neostrip::transfer_shadow_into_strip_if_dirty() {
     if (!shadow_strip_dirty) return;
     for (u16_t i = 0; i < number_of_pixels; i++) {
         uint8_t r, g, b;
-        byteToRgb2222(shadow_strip[i], &r, &g, &b); 
+        u8_t pixel = shadow_strip[i];         
+        pixel = (pixel & 0b11000000 !=0) ? pixel: pixel | brightness;
+        byteToRgb2222(pixel, &r, &g, &b); 
         // Serial.println(String(i) + " " + String(r) + " " + String(g) + " " + String(b));
         strip.SetPixelColor(i, RgbColor(r, g, b));
     }
@@ -103,6 +109,10 @@ void Neostrip::process_input(JsonDocument doc) {
         set_animation_mode(doc["animation-mode"]);        
     }
 
+    if (doc["brightness"].is<int>()) {
+        set_brightness(doc["brightness"]);
+    }
+    
     if (doc["pattern-add"].is<JsonArray>())
     {
         Serial.println(F("pattern-add detected"));
