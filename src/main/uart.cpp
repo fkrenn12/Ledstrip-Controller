@@ -5,7 +5,7 @@ char buffer[UART_BUFFER_SIZE];
 char* read_uart_line_blocking(void_func_void callback_idle , char eol='\n')
 {
   char incomingByte = 0;
-  char index = 0;
+  u16_t index = 0;
   buffer[0] = '\0';
 
   while (index < UART_BUFFER_SIZE)
