@@ -58,7 +58,7 @@ void Neostrip::set_interval(u16_t new_interval) {
 }
 
 void Neostrip::set_brightness(u8_t new_brightness) {
-    brightness = new_brightness << 6 && 0b11000000; // ensure it is between 0 and 3
+    brightness = (new_brightness << 6) & 0b11000000; // ensure it is between 0 and 3
 }
 
 // Muster setzen
@@ -85,7 +85,7 @@ void Neostrip::transfer_shadow_into_strip_if_dirty() {
     for (u16_t i = 0; i < number_of_pixels; i++) {
         uint8_t r, g, b;
         u8_t pixel = shadow_strip[i];         
-        pixel = (pixel & 0b11000000 !=0) ? pixel: pixel | brightness;
+        pixel = ((pixel & 0b11000000) > 0) ? pixel: pixel | brightness;
         byteToRgb2222(pixel, &r, &g, &b); 
         // Serial.println(String(i) + " " + String(r) + " " + String(g) + " " + String(b));
         strip.SetPixelColor(i, RgbColor(r, g, b));
