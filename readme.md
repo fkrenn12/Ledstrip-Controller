@@ -38,7 +38,7 @@ The possible values for the **brighness channel** in **binär**:
 examples:
 
 {"strip": 1, "update-mode":"instant"}  // defaults pixels=10, animation mode=off, interval=100ms,  
-{"strip": 2, "update-mode":"instant", "pixels":144}  
+{"strip": 2, "update-mode":"instant", "pixels":144, "brightness":1.0}  
 {"strip": 3, "update-mode":"instant", "pixels":100}  
 {"strip": 3, "update-mode":"instant", "pixels":55}  // redefine pixels on strip 3  
 
@@ -47,6 +47,8 @@ examples:
 {"strip": 1, "pattern-add": [100, 240, 200],  "repeat": 2, "first": 40}  
 
 {"strip": 1, "update-mode":"triggered", "pixels":100, "pattern-add": [100, 240, 200],  "repeat": 1, "interval":100, "animation-mode":"rotate-right"}  
+
+{"strip": 1, "animation":0,"animation-mode":"rotate-right", "interval":30, "pixels":256, "pattern": [36],  "repeat": 0, "brightness":4.0} 
 
 {"strip": 2, "update-mode":"instant", "pixels":100, "repeat": 0, "interval":100, "animation-mode":"rotate-right"}  
 
