@@ -58,7 +58,10 @@ void Neostrip::set_interval(u16_t new_interval) {
 }
 
 void Neostrip::set_brightness(u8_t new_brightness) {
-    brightness = (new_brightness << 6) & 0b11000000; // ensure it is between 0 and 3
+    new_brightness = (new_brightness > 4) ? 4: new_brightness; // ensure it is between 0 and 4
+    shadow_strip_dirty = (brightness != new_brightness) ? true : shadow_strip_dirty; // mark shadow strip as dirty if brightness changed
+    brightness = new_brightness;
+    // brightness = (new_brightness << 6) & 0b11000000; // ensure it is between 0 and 3
 }
 
 // Muster setzen
@@ -82,12 +85,15 @@ void Neostrip::set_pattern(JsonArray pattern, u16_t start, u16_t repeat, u16_t a
 void Neostrip::transfer_shadow_into_strip_if_dirty() {
     Serial.println("Transfer shadow into strip if dirty " + String( shadow_strip_dirty));
     if (!shadow_strip_dirty) return;
+    uint8_t r, g, b;
+    u8_t pixel;
     for (u16_t i = 0; i < number_of_pixels; i++) {
-        uint8_t r, g, b;
-        u8_t pixel = shadow_strip[i];         
-        pixel = ((pixel & 0b11000000) > 0) ? pixel: pixel | brightness;
+        pixel = shadow_strip[i];         
+        pixel = ((pixel & 0b11000000) > 0) ? pixel: pixel | ((brightness-1)<<6);
+        pixel = (brightness == 0) ? 0 : pixel; // if brightness is 0, overwrite pixel to 0
+        Serial.println("Pixel " + String(i) + " is " + String(pixel));
         byteToRgb2222(pixel, &r, &g, &b); 
-        // Serial.println(String(i) + " " + String(r) + " " + String(g) + " " + String(b));
+        Serial.println(String(i) + " " + String(r) + " " + String(g) + " " + String(b));
         strip.SetPixelColor(i, RgbColor(r, g, b));
     }
     shadow_strip_dirty = false;
