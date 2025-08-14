@@ -14,7 +14,7 @@ private:
     u8_t shadow_strip[1000] ={0};  
     bool shadow_strip_dirty;
     String animation_mode;
-    u8_t brightness;
+    float brightness;
     //NeoPixelBus<NeoGrbFeature, NeoWs2812xMethod> strip(PixelCount, PixelPin);
 public:
     // Konstruktor
@@ -30,7 +30,7 @@ public:
     void set_update_mode(String new_mode);
     void set_number_of_pixels(u16_t new_number_of_pixels);
     void set_interval(u16_t new_interval);
-    void set_brightness(u8_t new_brightness);
+    void set_brightness(float new_brightness);
     //void set_pattern(uint8_t* pattern, int pattern_length, int start = 0, int repeat = 0, int add = 0);
     void set_pattern(JsonArray pattern, u16_t start = 0, u16_t repeat = 0, u16_t add = 0);
     void process_input(JsonDocument doc);
