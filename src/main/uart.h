@@ -5,5 +5,5 @@
 #include "main.h"
 
 typedef void (*void_func_void)(void); 
-char* read_uart_line_blocking(void_func_void, char);
+char* read_uart_line_blocking(void_func_void);
 #endif

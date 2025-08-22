@@ -72,12 +72,12 @@ void Neostrip::set_pattern(JsonArray pattern, u16_t start, u16_t repeat, u16_t a
     u16_t pattern_length = pattern.size();
     start = max(1, (int)start) - 1;
     u16_t end = (repeat == 0) ? number_of_pixels : min(repeat * pattern_length + start, (int)number_of_pixels);
-    Serial.println("Set pattern -> First pixel " + String(start) + " Last pixel " + String(end));
+    // Serial.println("Set pattern -> First pixel " + String(start) + " Last pixel " + String(end));
 
     for (u16_t i = 0; i < number_of_pixels; i++) 
         shadow_strip[i] = (i >= start && i < end) ? pattern[(i-start) % pattern_length] : (add == 1) ? shadow_strip[i] : 0;
     shadow_strip_dirty = true;
-    Serial.println("Status of shadow strip dirty" + String( shadow_strip_dirty));
+    // Serial.println("Status of shadow strip dirty" + String( shadow_strip_dirty));
     
     if (update_mode == "instant") {
         transfer_shadow_into_strip_if_dirty();
@@ -129,12 +129,12 @@ void Neostrip::process_input(JsonDocument doc) {
     
     if (doc["pattern-add"].is<JsonArray>())
     {
-        Serial.println(F("pattern-add detected"));
+        // Serial.println(F("pattern-add detected"));
         set_pattern(doc["pattern-add"], doc["first"] | 0, doc["repeat"] | 0, 1);
     }
 
     if (doc["pattern"].is<JsonArray>()) {
-        Serial.println(F("pattern detected"));
+        // Serial.println(F("pattern detected"));
         set_pattern(doc["pattern"], doc["first"] | 0, doc["repeat"] | 0, 0);
     }
 }
