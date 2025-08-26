@@ -9,18 +9,20 @@
 
 ## RGB2222 Color Format
 The **RGB2222 format** is a method to represent colors in a compact manner using only 6 bits to define a color and 2 bits to define the brightness.   
-### Representatin of one byte   
-BRIGHTNESS[2] RED[2] GREEN[2] BLUE[2]  
-Each segment of 2 bits can represent 4 intensity levels (from 0 to 3).
+### Color representatin of one byte   
+  
+BRIGHTNESS[7:6] RED[5:4] GREEN[3:2] BLUE[1:0]    
 
-The possible values for each **color channel (RED, GREEN, BLUE)** in **binär**:  
+Each segment of 2 bits can represent 4 intensity levels (from 0 to 3).  
+
+Possible values for each **COLOR channel (RGB)**:  
 00: No intensity (off)  
 01: Low intensity  
 10: Medium intensity  
 11: Full intensity  
 
-The possible values for the **brighness channel** in **binär**:  
-00: Very Low intensity  
+Possible values for the **BRIGHTNESS channel**:  
+00: Controlled by the brigthness value from the strip
 01: Low intensity  
 10: Medium intensity  
 11: Full intensity  
@@ -29,8 +31,11 @@ The possible values for the **brighness channel** in **binär**:
 
 ## JSON Schema data format
 
-### Strip Selector  
-{"strip":<NUMEBR_OF_STRIP>} NUMBER_OF_STRIP = Integer number from 1 to 8  
+### Key strip - select strip  
+{"strip":<NUMBER_OF_STRIP>} NUMBER_OF_STRIP = Integer number from 1 to 8    
+
+### Key strips - select multiple strips  
+{"strips":[<NUMBER_OF_STRIP1>,<NUMBER_OF_STRIP2>,<NUMBER_OF_STRIP3>]}  
 
 
 ### Setup independent strips 
