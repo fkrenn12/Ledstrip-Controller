@@ -22,7 +22,7 @@ Possible values for each **COLOR channel (RGB)**:
 11: Full intensity  
 
 Possible values for the **BRIGHTNESS channel**:  
-00: Controlled by the brigthness value from the strip
+00: Controlled by the brigthness value from the strip  
 01: Low intensity  
 10: Medium intensity  
 11: Full intensity  
@@ -32,20 +32,29 @@ Possible values for the **BRIGHTNESS channel**:
 ## JSON Schema data format
 
 ### Key strip - select strip  
-{"strip":<NUMBER_OF_STRIP>} NUMBER_OF_STRIP = Integer number from 1 to 8    
+{"strip":<NUMBER_OF_STRIP>}    
 
 ### Key strips - select multiple strips  
 {"strips":[<NUMBER_OF_STRIP1>,<NUMBER_OF_STRIP2>,<NUMBER_OF_STRIP3>]}  
 
+## Global Keys ( influencing to ALL strips)  
+{"animation":0}  - disable animation for all strips   
+{"animation":1}  - enables animation for all strips   
+default: animation = 0  
 
-### Setup independent strips 
+### Setup independent strip examples 
 
-examples:
+Strip#1 is only one LED which should be updated instantly and is highest value  
+{"strip": 1, "update-mode":"instant", "pixels":1, "brightness":4}  
 
-{"strip": 1, "update-mode":"instant"}  // defaults pixels=10, animation mode=off, interval=100ms,  
-{"strip": 2, "update-mode":"instant", "pixels":144, "brightness":1.0}  
-{"strip": 3, "update-mode":"instant", "pixels":100}  
-{"strip": 3, "update-mode":"instant", "pixels":55}  // redefine pixels on strip 3  
+Strip#2, #3 and #4 consists of 8 LED's and brighness is very low
+{"strips": [2,3,4] "update-mode":"instant", "pixels":8, "brightness":0.2}  
+
+Strip#5 is a long strip with 144 LED's and rotating right animation with a speed of 100ms  
+{"strip": 5, "update-mode":"instant", "pixels":144, "brightness":2, "animation-mode":"rotate-right", "interval":100}     
+Switching off the animation: {"strip": 5,"animation-mode":"off"}    
+Changing the speed to 500ms: {"strip": 5,"interval":500}   
+Changing rotation direction: {"strip": 5,"animation-mode":"rotate-left"}   
 
 {"strip": 1, "pattern": [100, 240, 200],  "repeat": 1}  // default first=0  
 {"strip": 1, "pattern-add": [100, 240, 200],  "first":20, "repeat": 1}  
