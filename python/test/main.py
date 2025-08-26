@@ -22,20 +22,20 @@ def main():
     while True:
         send({"animation": 1})
         # setup and clear strip#1
-        send({"strip": 1, "update-mode": "instant", "pixels": 768, "pattern": [0], "repeat": 0, "brightness": 4})
+        send({"strip": 1, "update-mode": "instant", "pixels": 2, "pattern": [0], "repeat": 0, "brightness": 4})
         # setup and clear strip#2
         send({"strip": 2, "update-mode": "instant", "pixels": 8, "pattern": [0], "repeat": 0,
               "brightness": 1, "interval": 100, "animation-mode": "rotate-right"})
-        send({"strip": 2, "repeat": 1, "pattern": [3]})
+        send({"strip": 2, "repeat": 0, "pattern": [1,2,3,7,11,7,3,2], "first": 1, "animation-mode": "rotate-right"})
         # setup and clear strip#3
         send({"strip": 3, "update-mode": "instant", "pixels": 8, "pattern": [0], "repeat": 0, "brightness": 4})
 
         for i in range(1000000000):
             try:
-                send({"strip": 1, "repeat": 1, "pattern-add": [randint(1, 21)], "first": randint(0, 768)})
+                send({"strip": 1, "repeat": 1, "pattern-add": [randint(1, 21)], "first": randint(0, 2)})
                 send({"strip": 3, "repeat": 2, "pattern": [randint(1, 63)], "first": randint(1, 7)})
-                if i >100:
-                    send({"strip": 1, "repeat": 4, "pattern-add": [0], "first": randint(0, 768)})
+                # if i >100:
+                #    send({"strip": 1, "repeat": 4, "pattern-add": [0], "first": randint(0, 2)})
             except Exception as e:
                 print(f"Error sending command")
             finally:
