@@ -31,20 +31,28 @@ Possible values for the **BRIGHTNESS channel**:
 
 ## JSON Schema data format
 
-### Key strip - select strip  
+## Strip Keys
+### Select strip  
 {"strip":<NUMBER_OF_STRIP>}    
 
-### Key strips - select multiple strips  
-{"strips":[<NUMBER_OF_STRIP1>,<NUMBER_OF_STRIP2>,<NUMBER_OF_STRIP3>]}  
+### Select multiple strips  
+{"strips":[<NUMBER_OF_STRIP1>,<NUMBER_OF_STRIP2>,<NUMBER_OF_STRIP3>...<NUMBER_OF_STRIP8>]}  
 
-## Global Keys ( influencing to ALL strips)  
+<NUMBER_OF_STRIP> integer value from 1 to 8 representing strip#
+
+### Set brightness  
+{"brightness": <BRIGHTNESS_LEVEL>}  
+<BRIGHTNESS_LEVEL>  decimal value from 0.00 to 4.00 .Values below 0.07 are switching off the pixel  
+
+
+## Global Keys ( influencing ALL strips)  
 {"animation":0}  - disable animation for all strips   
 {"animation":1}  - enables animation for all strips   
 default: animation = 0  
 
 ### Setup independent strip examples 
 
-Strip#1 is only one LED which should be updated instantly and is highest value  
+Strip#1 is only one LED which should be updated instantly and highest brightness
 {"strip": 1, "update-mode":"instant", "pixels":1, "brightness":4}  
 
 Strip#2, #3 and #4 consists of 8 LED's and brighness is very low
@@ -55,6 +63,7 @@ Strip#5 is a long strip with 144 LED's and rotating right animation with a speed
 Switching off the animation: {"strip": 5,"animation-mode":"off"}    
 Changing the speed to 500ms: {"strip": 5,"interval":500}   
 Changing rotation direction: {"strip": 5,"animation-mode":"rotate-left"}   
+Changing speed and rotation in one command line: {"strip": 5,"animation-mode":"rotate-left", "interval":500} 
 
 {"strip": 1, "pattern": [100, 240, 200],  "repeat": 1}  // default first=0  
 {"strip": 1, "pattern-add": [100, 240, 200],  "first":20, "repeat": 1}  
