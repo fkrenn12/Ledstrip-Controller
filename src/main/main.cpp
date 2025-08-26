@@ -110,6 +110,7 @@ void process_received_message(char* message) {
     DeserializationError error = deserializeJson(doc, message);
     if (error) {
         Serial.println("Error parsing JSON " + String(error.c_str()));
+        Serial.println("Received message: " + String(message)); 
         return;
     }
     digitalWrite(INDICATOR_LED_PIN, LOW);

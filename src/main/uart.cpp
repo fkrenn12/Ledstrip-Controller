@@ -5,6 +5,7 @@
 #define EOL2 '\r'
 
 char buffer[UART_BUFFER_SIZE];
+
 char* read_uart_line_blocking(void_func_void callback_idle)
 {
   while (1){
@@ -19,7 +20,6 @@ char* read_uart_line_blocking(void_func_void callback_idle)
         if (incomingByte == EOL1 || incomingByte == EOL2) {
           buffer[index] = '\0';
           break;
-
         }
         buffer[index++] = incomingByte; 
       }

@@ -10,8 +10,8 @@ const u8_t color_table[] = {0, 15, 30, 63};
 // Konstruktor
 Neostrip::Neostrip(u8_t neo_pin, u16_t interval, u16_t number_of_pixels)
     : neo_pin(neo_pin), number_of_pixels(number_of_pixels), interval(interval), animation_mode("off"), 
-      update_mode("instant"), last_tick_ms(0), need_show(false),shadow_strip_dirty(false),brightness(0),
-      strip(number_of_pixels, neo_pin){
+      update_mode("instant"), last_tick_ms(0), need_show(false),shadow_strip_dirty(false),brightness(2.0),
+      color_format("rgb2222"), strip(number_of_pixels, neo_pin){
     strip.Begin();
     strip.ClearTo(RgbColor(0, 0, 0));
 }
@@ -26,6 +26,18 @@ void Neostrip::set_animation_mode(String new_mode) {
         }
     }
     Serial.print("Set animation mode cancelled - leaved as" + animation_mode);
+}
+
+// Color Format setzen
+void Neostrip::set_color_format(String new_format) {
+    for (String valid_format : COLOR_FORMATS) {
+        if (new_format == valid_format) {
+            color_format = new_format;
+            Serial.println("New color format is " + color_format);
+            return;
+        }
+    }
+    Serial.print("Set color format cancelled - leaved as" + color_format);
 }
 
 // Update Modus setzen
@@ -63,11 +75,9 @@ void Neostrip::set_brightness(float new_brightness) {
     new_brightness = (new_brightness > 4) ? 4: new_brightness; // ensure it is between 0 and 4
     shadow_strip_dirty = (brightness != new_brightness) ? true : shadow_strip_dirty; // mark shadow strip as dirty if brightness changed
     brightness = new_brightness;
-    // brightness = (new_brightness << 6) & 0b11000000; // ensure it is between 0 and 3
 }
 
 // Muster setzen
-// void Neostrip::set_pattern(uint8_t* pattern, int pattern_length, int start, int repeat, int add) {
 void Neostrip::set_pattern(JsonArray pattern, u16_t start, u16_t repeat, u16_t add) {
     u16_t pattern_length = pattern.size();
     start = max(1, (int)start) - 1;
@@ -90,7 +100,11 @@ void Neostrip::transfer_shadow_into_strip_if_dirty() {
     uint8_t r, g, b, individual_brightness, pixel;
     for (u16_t i = 0; i < number_of_pixels; i++) {
         pixel = shadow_strip[i];         
-        pixel = (brightness <= 0.06) ? 0 : pixel; // if brightness too low, overwrite pixel to 0
+        // if brightness too low, clear pixel
+        if ((brightness <= 0.06)) {
+            strip.SetPixelColor(i, RgbColor(0, 0, 0));
+            continue;
+        }
         // Serial.println("Pixel " + String(i) + " is " + String(pixel));
         // Serial.println("Brightness is " + String(brightness));
         // byteToRgb2222(pixel, &r, &g, &b);
@@ -121,6 +135,10 @@ void Neostrip::process_input(JsonDocument doc) {
 
     if (doc["animation-mode"].is<String>()) {
         set_animation_mode(doc["animation-mode"]);        
+    }
+
+    if (doc["color-format"].is<String>()) {
+        set_color_format(doc["color-format"]);
     }
 
     if (doc["brightness"].is<float>()) {
