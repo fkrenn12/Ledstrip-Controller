@@ -61,6 +61,7 @@ greater 0: The pattern is copied NUMBER_OF_REPEATS times
 ### Set first pixel of pattern (only in combination with "pattern" useful)
 
  
+---
 
 ### Setup independent strip examples 
 
@@ -94,12 +95,6 @@ Changing speed and rotation in one command line: {"strip": 5,"animation-mode":"r
 {"strips": [1,2,3,4,5,6,7,8], "update-mode":"triggered","pixels":144}    
 
 Display with 8 rows and 144 coloumns, so we have 8 * 144 = 1152 Pixels managed  
-
-
-
-{"animation":0}
-
-{"animation":1}
 
 {"update-trigger":1}
 

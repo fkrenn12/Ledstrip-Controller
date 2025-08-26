@@ -18,7 +18,6 @@ def send(command):
 
 
 def main():
-
     while True:
         send({"animation": 1})
         # setup and clear strip#1
@@ -26,7 +25,8 @@ def main():
         # setup and clear strip#2
         send({"strip": 2, "update-mode": "instant", "pixels": 8, "pattern": [0], "repeat": 0,
               "brightness": 1, "interval": 100, "animation-mode": "rotate-right"})
-        send({"strip": 2, "repeat": 0, "pattern": [1,2,3,7,11,7,3,2], "first": 1, "animation-mode": "rotate-right"})
+        send({"strip": 2, "repeat": 0, "pattern": [1, 2, 3, 7, 11, 7, 3, 2], "first": 1,
+              "animation-mode": "rotate-right"})
         # setup and clear strip#3
         send({"strip": 3, "update-mode": "instant", "pixels": 8, "pattern": [0], "repeat": 0, "brightness": 4})
 
