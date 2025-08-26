@@ -40,9 +40,16 @@ Possible values for the **BRIGHTNESS channel**:
 
 <NUMBER_OF_STRIP> integer value from 1 to 8 representing strip#
 
-### Set brightness  
+### Set brightness level   
 {"brightness": <BRIGHTNESS_LEVEL>}  
 <BRIGHTNESS_LEVEL>  decimal value from 0.00 to 4.00 .Values below 0.07 are switching off the pixel  
+
+
+### Set pattern repeats  
+{"repeats": <NUMBER_OF_REPEATS>}  
+<NUMBER_OF_REPEATS>  How often the pattern will be duplicates along all pixels of the strip  
+0:  The pattern is copied all over pixels of the strip  
+>0: The pattern is copied NUMBER_OF_REPEATS times  
 
 
 ## Global Keys ( influencing ALL strips)  
@@ -52,14 +59,14 @@ default: animation = 0
 
 ### Setup independent strip examples 
 
-Strip#1 is only one LED which should be updated instantly and highest brightness
-{"strip": 1, "update-mode":"instant", "pixels":1, "brightness":4}  
+Strip#1 is only one LED which should be updated instantly with highest brightness  
+{"strip": 1, "pixels":1, "brightness":4}  
 
 Strip#2, #3 and #4 consists of 8 LED's and brighness is very low
-{"strips": [2,3,4] "update-mode":"instant", "pixels":8, "brightness":0.2}  
+{"strips": [2,3,4], "pixels":8, "brightness":0.2}  
 
 Strip#5 is a long strip with 144 LED's and rotating right animation with a speed of 100ms  
-{"strip": 5, "update-mode":"instant", "pixels":144, "brightness":2, "animation-mode":"rotate-right", "interval":100}     
+{"strip": 5, "pixels":144, "brightness":2, "animation-mode":"rotate-right", "interval":100}     
 Switching off the animation: {"strip": 5,"animation-mode":"off"}    
 Changing the speed to 500ms: {"strip": 5,"interval":500}   
 Changing rotation direction: {"strip": 5,"animation-mode":"rotate-left"}   
