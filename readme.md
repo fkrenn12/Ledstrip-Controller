@@ -44,13 +44,16 @@ Possible values for the **BRIGHTNESS channel**:
 {"brightness": <BRIGHTNESS_LEVEL>}  
 <BRIGHTNESS_LEVEL>  decimal value from 0.00 to 4.00 .Values below 0.07 are switching off the pixel  
 
+### Set pattern  
+### Add pattern  
 
 ### Set pattern repeats  
-{"repeats": <NUMBER_OF_REPEATS>}  
-<NUMBER_OF_REPEATS>  How often the pattern will be duplicates along all pixels of the strip  
-0:  The pattern is copied all over pixels of the strip  
->0: The pattern is copied NUMBER_OF_REPEATS times  
+{"repeat": <NUMBER_OF_REPEATS>}  
+<NUMBER_OF_REPEATS>  Integer value represents how often the pattern will be duplicated along the pixels of the strip  
+0:  The pattern is copied  over all pixels of the strip  
+greater 0: The pattern is copied NUMBER_OF_REPEATS times  
 
+### Set first pixel of pattern (only in combination with "pattern" useful)
 
 ## Global Keys ( influencing ALL strips)  
 {"animation":0}  - disable animation for all strips   
