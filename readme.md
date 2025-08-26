@@ -31,6 +31,11 @@ Possible values for the **BRIGHTNESS channel**:
 
 ## JSON Schema data format
 
+## Global Keys ( influencing ALL strips)  
+{"animation":0}  - disable animation for all strips   
+{"animation":1}  - enables animation for all strips   
+default: animation = 0 
+
 ## Strip Keys
 ### Select strip  
 {"strip":<NUMBER_OF_STRIP>}    
@@ -47,7 +52,7 @@ Possible values for the **BRIGHTNESS channel**:
 ### Set pattern  
 ### Add pattern  
 
-### Set pattern repeats  
+### Set pattern repeats (only in combination with "pattern" useful) 
 {"repeat": <NUMBER_OF_REPEATS>}  
 <NUMBER_OF_REPEATS>  Integer value represents how often the pattern will be duplicated along the pixels of the strip  
 0:  The pattern is copied  over all pixels of the strip  
@@ -55,10 +60,7 @@ greater 0: The pattern is copied NUMBER_OF_REPEATS times
 
 ### Set first pixel of pattern (only in combination with "pattern" useful)
 
-## Global Keys ( influencing ALL strips)  
-{"animation":0}  - disable animation for all strips   
-{"animation":1}  - enables animation for all strips   
-default: animation = 0  
+ 
 
 ### Setup independent strip examples 
 
