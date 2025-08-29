@@ -50,15 +50,21 @@ default: animation = 0
 <BRIGHTNESS_LEVEL>  decimal value from 0.00 to 4.00 .Values below 0.07 are switching off the pixel  
 
 ### Set pattern  
-### Add pattern  
+{"pattern": [<COLOR_VALUE>,<COLOR_VALUE>,<COLOR_VALUE>...<COLOR_VALUE>]}
 
-### Set pattern repeats (only in combination with "pattern" useful) 
+
+### Add pattern  
+{"pattern-add": [<COLOR_VALUE>,<COLOR_VALUE>,<COLOR_VALUE>...<COLOR_VALUE>]}
+
+### Set pattern repeats (only in combination with "pattern" or "pattern-add" useful) 
 {"repeat": <NUMBER_OF_REPEATS>}  
 <NUMBER_OF_REPEATS>  Integer value represents how often the pattern will be duplicated along the pixels of the strip  
 0:  The pattern is copied  over all pixels of the strip  
 greater 0: The pattern is copied NUMBER_OF_REPEATS times  
 
-### Set first pixel of pattern (only in combination with "pattern" useful)
+### Set first pixel of pattern (only in combination with "pattern" or "pattern-add" useful)  
+{"first": <NUMBER_OF_FIRST_PIXEL>}  
+Defines the first pixel of the pattern. It starts with 1 and ends with the number of pixels of the strip.  
 
  
 ---
